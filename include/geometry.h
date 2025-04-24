@@ -82,7 +82,7 @@ public:
 };
 
 template <size_t N, typename T>
-inline std::ostream& operator<<(std::ostream& out, const vec<N,T> &v) {
+std::ostream& operator<<(std::ostream& out, const vec<N,T> &v) {
     out << v[0];
     for (int i = 1; i < N; ++i) {
         out << " " << v[i];
@@ -120,6 +120,18 @@ vec<N, T> operator*(T t, const vec<N, T> &rhs) {
 
 template <size_t N, typename T>
 vec<N, T> operator*(const vec<N, T> &lhs, T t) {
+    return t * lhs;
+}
+
+template <size_t N, typename T>
+vec<N, T> operator*(int t, const vec<N, T> &rhs) {
+    vec<N, T> rst;
+    for (int i = 0; i < N; ++i) { rst[i] = t * rhs[i]; }
+    return rst;
+}
+
+template <size_t N, typename T>
+vec<N, T> operator*(const vec<N, T> &lhs, int t) {
     return t * lhs;
 }
 

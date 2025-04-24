@@ -1,15 +1,16 @@
 #include "geometry.h"
 #include "ray.h"
 #include "color.h"
-#include "camera.h"
-
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <stb_image_write.h>
+#include "raytracer.h"
+#include "image.h"
 
 int main() {
-
+    Image image(800, 800, Image::RGB);
     
+    RayTracer raytracer(image);
+    raytracer.render();
+
+    image.write_png_file("rst.png");
+
     return 0;
 }
