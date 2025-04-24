@@ -53,6 +53,34 @@ public:
     }
 };
 
+template<typename T>
+class vec<4, T> {
+public:
+    union {
+        struct { T x, y, z, w; };
+        struct { T r, g, b, a; };
+    };
+    vec() { x=T(); y=T(); z=T(); w=T(); }
+    vec(T X, T Y, T Z, T W) : x(X), y(Y), z(Z), w(W) {} 
+    T operator[](size_t i) const { assert(i < 4); return i<=0?x:(i==1?y:(i==2?z:w)); }
+    T& operator[] (size_t i) { assert(i < 4); return i<=0?x:(i==1?y:(i==2?z:w)); }
+
+    vec<4, T>& operator+=(const vec<4, T>& v) {
+        x += v.x;  y += v.y;  z += v.z; w += v.w;
+        return *this;
+    }
+
+    vec<4, T>& operator*=(T t) {
+        x*=t; y*=t; z*=t; w*=t;
+        return *this;
+    }
+
+    vec<4, T>& operator/=(T t) {
+        x/=t; y/=t; z/=t; w/=t;
+        return *this;
+    }
+};
+
 template <size_t N, typename T>
 inline std::ostream& operator<<(std::ostream& out, const vec<N,T> &v) {
     out << v[0];
@@ -125,6 +153,7 @@ using Vec3f = vec<3, float>;
 using Vec4f = vec<4, float>;
 using Vec3i = vec<3, int>;
 using Vec4i = vec<4, int>;
+using Vec4uc = vec<4, unsigned char>;
 using Point3f = Vec3f;
 
 #endif
