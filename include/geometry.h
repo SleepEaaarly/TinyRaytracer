@@ -125,5 +125,6 @@ using Vec3f = vec<3, float>;
 using Vec4f = vec<4, float>;
 using Vec3i = vec<3, int>;
 using Vec4i = vec<4, int>;
+using Point3f = Vec3f;
 
 #endif
