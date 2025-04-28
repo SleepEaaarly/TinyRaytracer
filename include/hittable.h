@@ -3,10 +3,19 @@
 
 #include "ray.h"
 
-struct HitRecord {
+class HitRecord {
+public:
     Point3f p;
     Vec3f normal;
     float t;
+    bool front_face;
+
+    // set the hit record normal direction
+    void set_face_normal(const Ray &r, const Vec3f &outward_normal) {
+        // 'outward_normal' is assumed to be unit vector
+        front_face = dot(r.direction(), outward_normal) < 0;
+        normal = front_face ? outward_normal : -outward_normal;
+    }
 };
 
 class Hittable {
