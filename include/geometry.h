@@ -63,6 +63,7 @@ public:
     };
     vec() { x=T(); y=T(); z=T(); w=T(); }
     vec(T X, T Y, T Z, T W) : x(X), y(Y), z(Z), w(W) {} 
+    vec(vec<3, T> vec3, T W) : x(vec3.x), y(vec3.y), z(vec3.z), w(W) {}
     vec<4, T> operator-() const { return vec<4, T>(-x, -y, -z, -w); }
     T operator[](size_t i) const { assert(i < 4); return i<=0?x:(i==1?y:(i==2?z:w)); }
     T& operator[] (size_t i) { assert(i < 4); return i<=0?x:(i==1?y:(i==2?z:w)); }

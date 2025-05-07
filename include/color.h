@@ -40,21 +40,21 @@ struct Color {
 	}
 };
 
-inline Color vec2Color(Vec4f &vec) {
+inline Color vec2Color(const Vec4f &vec) {
     return Color((unsigned char)(std::max(0.f, std::min(1.f, vec.r))*255+.5f),
     (unsigned char)(std::max(0.f, std::min(1.f, vec.g))*255+.5f),
     (unsigned char)(std::max(0.f, std::min(1.f, vec.b))*255+.5f),
     (unsigned char)(std::max(0.f, std::min(1.f, vec.a))*255+.5f));
 }
 
-inline Color vec2Color(Vec3f &vec) {
+inline Color vec2Color(const Vec3f &vec) {
     return Color((unsigned char)(std::max(0.f, std::min(1.f, vec.x))*255+.5f),
     (unsigned char)(std::max(0.f, std::min(1.f, vec.y))*255+.5f),
     (unsigned char)(std::max(0.f, std::min(1.f, vec.z))*255+.5f),
     255);
 }
 
-inline Vec4f color2Vec(Color &c) {
+inline Vec4f color2Vec(const Color &c) {
     return Vec4f(c.r/255.f, c.g/255.f, c.b/255.f, c.a/255.f);
 }
 
