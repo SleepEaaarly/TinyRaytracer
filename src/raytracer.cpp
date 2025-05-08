@@ -26,7 +26,7 @@ void RayTracer::render(const Hittable &world) {
             Vec3f pixel_color;
             for (int sample = 0; sample < samples_per_pixel; ++sample) {
                 Ray r = get_sample_ray(i, j);
-                pixel_color += ray_color(r, world);
+                pixel_color += ray_color(r, max_depth, world);
             }
             image->set(i, j, vec2Color(pixel_color * (1.f/samples_per_pixel)));
         }
@@ -41,10 +41,14 @@ Ray RayTracer::get_sample_ray(int i, int j) {
     return Ray(center, dir);
 }
 
-Vec3f RayTracer::ray_color(const Ray &r, const Hittable &world) {
+Vec3f RayTracer::ray_color(const Ray &r, int depth, const Hittable &world) {
+    if (depth <= 0) 
+        return Vec3f(0.f, 0.f, 0.f);
+    
     HitRecord rec;
-    if (world.hit(r, Interval(0.f, INFINITY), rec)) {
-        return 0.5f * (rec.normal + Vec3f(1.f, 1.f, 1.f));
+    if (world.hit(r, Interval(0.001f, INFINITY), rec)) {
+        auto direction = random_on_hemisphere(rec.normal);
+        return 0.5f * ray_color(Ray(rec.p, direction), depth-1, world);
     }
     Vec3f ray_dir = r.direction();
     auto t = 0.5f * (ray_dir.y + 1.0f);

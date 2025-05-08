@@ -50,7 +50,8 @@ public:
 
     vec<3, T> unit() {
         vec<3, T> rst = *this;
-        return rst/=rst.norm();
+        rst/=rst.norm();
+        return rst;
     }
 };
 

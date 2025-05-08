@@ -7,7 +7,8 @@
 
 class RayTracer {
 public:
-    int samples_per_pixel = 10;
+    int samples_per_pixel = 30;
+    int max_depth = 50;
 
     RayTracer(Image &img);
     void render(const Hittable &world);
@@ -23,7 +24,7 @@ private:
     Vec3f pixel_delta_v;
     Vec3f pixel00_loc;
 
-    Vec3f ray_color(const Ray &r, const Hittable &world);   
+    Vec3f ray_color(const Ray &r, int depth, const Hittable &world);   
     Ray get_sample_ray(int i, int j);
 };
 
