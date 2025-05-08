@@ -1,6 +1,6 @@
 #include "sphere.h"
 
-bool Sphere::hit(const Ray &ray, float ray_tmin, float ray_tmax, HitRecord &rec) const {
+bool Sphere::hit(const Ray &ray, Interval ray_t, HitRecord &rec) const {
     Vec3f oc = center - ray.origin();
     auto a = ray.direction().norm_squared();
     auto h = dot(ray.direction(), oc);
@@ -11,13 +11,13 @@ bool Sphere::hit(const Ray &ray, float ray_tmin, float ray_tmax, HitRecord &rec)
         return false;
     }
 
-    auto sqrtd = std::sqrtf(discriminant);
+    auto sqrtd = sqrtf(discriminant);
 
     // judge two roots
     auto root = (h - sqrtd) / a;
-    if (root <= ray_tmin || ray_tmax <= root) {
+    if (root <= ray_t.min || ray_t.max <= root) {
         root = (h + sqrtd) / a;
-        if (root <= ray_tmin || ray_tmax <= root) {
+        if (root <= ray_t.min || ray_t.max <= root) {
             return false;
         }
     }

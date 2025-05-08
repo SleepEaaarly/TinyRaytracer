@@ -24,7 +24,7 @@ public:
     void read_file(const char *filename);
 	void write_png_file(const char *filename);
 	Color get(int x, int y);
-	bool set(int x, int y, Color &c);
+	bool set(int x, int y, const Color &c);
 	~Image();
 	int get_width();
 	int get_height();

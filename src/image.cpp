@@ -55,7 +55,7 @@ Color Image::get(int x, int y) {
 	return Color(data+(x+y*width)*bytespp, bytespp);    
 }
 
-bool Image::set(int x, int y, Color &c) {
+bool Image::set(int x, int y, const Color &c) {
     if (!data || x<0 || y<0 || x>=width || y>=height) {
 		return false;
 	}
