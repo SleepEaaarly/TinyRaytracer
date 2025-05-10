@@ -48,6 +48,10 @@ public:
         return x*x+y*y+z*z;
     }
 
+    bool near_zero() const {
+        return fabs(x) < 1e-6f && fabs(y) < 1e-6f && fabs(z) < 1e-6f;
+    }
+
     vec<3, T> unit() const {
         vec<3, T> rst = *this;
         rst/=rst.norm();
@@ -82,6 +86,10 @@ public:
     vec<4, T>& operator/=(T t) {
         x/=t; y/=t; z/=t; w/=t;
         return *this;
+    }
+
+    vec<3, T> cutVec3() {
+        return vec<3, T>(x, y, z);
     }
 };
 

@@ -4,6 +4,8 @@
 #include "geometry.h"
 #include "image.h"
 #include "hittable.h"
+#include "ray.h"
+#include "material.h"
 
 class RayTracer {
 public:
@@ -24,7 +26,7 @@ private:
     Vec3f pixel_delta_v;
     Vec3f pixel00_loc;
 
-    Vec3f ray_color(const Ray &r, int depth, const Hittable &world);   
+    Color3f ray_color(const Ray &r, int depth, const Hittable &world);   
     Ray get_sample_ray(int i, int j);
 };
 

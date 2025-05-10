@@ -53,6 +53,10 @@ inline Vec3f random_on_hemisphere(const Vec3f &normal) {
     return v.x*x_axis + v.y*y_axis + v.z*normal;
 }
 
+inline Vec3f reflect(const Vec3f &v, const Vec3f &n) {
+    return v - 2 * dot(v, n) * n;
+}
+
 inline Vec3f linear_to_gamma(const Vec3f &linear_component) {
     // approximate gamma = 2
     float gamma_r = linear_component.x > 0.f ? sqrtf(linear_component.x) : 0.f;

@@ -5,6 +5,7 @@
 
 class Ray {
 public:
+    Ray() = default;
     Ray(const Point3f &origin, const Vec3f &direction) : orig(origin), dir(direction.unit()) {}
 
     const Point3f& origin() const { return orig; }

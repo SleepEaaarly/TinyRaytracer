@@ -1,5 +1,4 @@
 #include "raytracer.h"
-#include "ray.h"
 
 RayTracer::RayTracer(Image &img) {
     image = &img;
@@ -42,14 +41,18 @@ Ray RayTracer::get_sample_ray(int i, int j) {
     return Ray(center, dir);
 }
 
-Vec3f RayTracer::ray_color(const Ray &r, int depth, const Hittable &world) {
+Color3f RayTracer::ray_color(const Ray &r, int depth, const Hittable &world) {
     if (depth <= 0) 
-        return Vec3f(0.f, 0.f, 0.f);
+        return Color3f(0.f, 0.f, 0.f);
     
     HitRecord rec;
     if (world.hit(r, Interval(0.001f, INFINITY), rec)) {
-        auto direction = rec.normal + random_unit_vector(); // Lambert diffuse model
-        return 0.5f * ray_color(Ray(rec.p, direction), depth-1, world);
+        Ray scattered;
+        Color3f attenuation;
+        if (rec.mat->scatter(r, rec, attenuation, scattered)) {
+            return attenuation * ray_color(scattered, depth - 1, world);
+        }
+        return Color3f(0.f, 0.f, 0.f);
     }
     Vec3f ray_dir = r.direction();
     auto t = 0.5f * (ray_dir.y + 1.0f);
