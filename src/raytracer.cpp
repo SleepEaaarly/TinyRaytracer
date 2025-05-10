@@ -28,7 +28,8 @@ void RayTracer::render(const Hittable &world) {
                 Ray r = get_sample_ray(i, j);
                 pixel_color += ray_color(r, max_depth, world);
             }
-            image->set(i, j, vec2Color(pixel_color * (1.f/samples_per_pixel)));
+            pixel_color = pixel_color / float(samples_per_pixel);
+            image->set(i, j, vec2Color(linear_to_gamma(pixel_color)));
         }
     }
 }
@@ -47,7 +48,7 @@ Vec3f RayTracer::ray_color(const Ray &r, int depth, const Hittable &world) {
     
     HitRecord rec;
     if (world.hit(r, Interval(0.001f, INFINITY), rec)) {
-        auto direction = random_on_hemisphere(rec.normal);
+        auto direction = rec.normal + random_unit_vector(); // Lambert diffuse model
         return 0.5f * ray_color(Ray(rec.p, direction), depth-1, world);
     }
     Vec3f ray_dir = r.direction();

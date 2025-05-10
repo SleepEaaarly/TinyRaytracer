@@ -48,7 +48,7 @@ public:
         return x*x+y*y+z*z;
     }
 
-    vec<3, T> unit() {
+    vec<3, T> unit() const {
         vec<3, T> rst = *this;
         rst/=rst.norm();
         return rst;

@@ -3,10 +3,13 @@
 
 #include "rtweekend.h"
 
+class Material;
+
 class HitRecord {
 public:
     Point3f p;
     Vec3f normal;
+    shared_ptr<Material> mat;
     float t;
     bool front_face;
 
@@ -16,6 +19,7 @@ public:
         front_face = dot(r.direction(), outward_normal) < 0;
         normal = front_face ? outward_normal : -outward_normal;
     }
+
 };
 
 class Hittable {
