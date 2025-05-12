@@ -11,8 +11,8 @@ int main() {
 
     auto material_ground = make_shared<Lambertian>(Color3f(0.8f, 0.8f, 0.0f));
     auto material_center = make_shared<Lambertian>(Color3f(0.1f, 0.2f, 0.5f));
-    auto material_left = make_shared<Metal>(Color3f(0.8f, 0.8f, 0.8f));
-    auto material_right = make_shared<Metal>(Color3f(0.8f, 0.6f, 0.2f));
+    auto material_left = make_shared<Metal>(Color3f(0.8f, 0.8f, 0.8f), 0.3f);
+    auto material_right = make_shared<Metal>(Color3f(0.8f, 0.6f, 0.2f), 1.0f);
 
     world.add(make_shared<Sphere>(Point3f(0.f, 0.f, -1.f), 0.5f, material_center));
     world.add(make_shared<Sphere>(Point3f(0.f, -100.5f, -1.f), 100.f, material_ground));

@@ -45,6 +45,7 @@ Color3f RayTracer::ray_color(const Ray &r, int depth, const Hittable &world) {
     if (depth <= 0) 
         return Color3f(0.f, 0.f, 0.f);
     
+    // Raytracing process
     HitRecord rec;
     if (world.hit(r, Interval(0.001f, INFINITY), rec)) {
         Ray scattered;
@@ -54,7 +55,9 @@ Color3f RayTracer::ray_color(const Ray &r, int depth, const Hittable &world) {
         }
         return Color3f(0.f, 0.f, 0.f);
     }
+
+    // Background Color
     Vec3f ray_dir = r.direction();
     auto t = 0.5f * (ray_dir.y + 1.0f);
-    return (1.f-t)*Vec3f(1.0f, 1.0f, 1.0f)+t*Vec3f(0.5f, 0.7f, 1.0f);
+    return (1.f-t)*Color3f(1.0f, 1.0f, 1.0f)+t*Color3f(0.5f, 0.7f, 1.0f);
 }
