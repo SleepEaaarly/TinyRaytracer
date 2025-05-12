@@ -51,4 +51,34 @@ public:
     }
 };
 
+class Dielectric : public Material {
+private:
+    // in fact it's relative refraction_index, which is material refractive index over media.
+    float refraction_index;
+public:
+    Dielectric(float refraction_index) : refraction_index(refraction_index) {}
+
+    bool scatter(const Ray &r_in, const HitRecord &rec, Color3f &attenuation, Ray &scattered)
+    const override {
+        attenuation = Color3f(1.f, 1.f, 1.f);
+        float etai_over_etao = rec.front_face ? (1.f / refraction_index) : refraction_index;
+
+        auto ray_in_direction = r_in.direction();
+
+        float cos_theta = dot(-ray_in_direction, rec.normal);
+        float sin_theta = sqrtf(1.f - cos_theta*cos_theta);
+
+        Vec3f scattered_direction;
+        bool total_reflection = etai_over_etao * sin_theta > 1.f;
+
+        if (total_reflection || random_float() < schlick(cos_theta, etai_over_etao))   // total reflection
+            scattered_direction = reflect(ray_in_direction, rec.normal);
+        else 
+            scattered_direction = refract(ray_in_direction, rec.normal, etai_over_etao);
+
+        scattered = Ray(rec.p, scattered_direction);
+        return true;
+    } 
+};
+
 #endif

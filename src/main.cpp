@@ -4,23 +4,62 @@
 #include "sphere.h"
 #include "image.h"
 #include "material.h"
+#include <chrono>
 
 int main() {
-    Image image(800, 600, Image::RGB);
+    Image image(1200, 675, Image::RGB);
     HittableList world;
 
-    auto material_ground = make_shared<Lambertian>(Color3f(0.8f, 0.8f, 0.0f));
-    auto material_center = make_shared<Lambertian>(Color3f(0.1f, 0.2f, 0.5f));
-    auto material_left = make_shared<Metal>(Color3f(0.8f, 0.8f, 0.8f), 0.3f);
-    auto material_right = make_shared<Metal>(Color3f(0.8f, 0.6f, 0.2f), 1.0f);
-
-    world.add(make_shared<Sphere>(Point3f(0.f, 0.f, -1.f), 0.5f, material_center));
-    world.add(make_shared<Sphere>(Point3f(0.f, -100.5f, -1.f), 100.f, material_ground));
-    world.add(make_shared<Sphere>(Point3f(-1.0f, 0.0f, -1.0f), 0.5f, material_left));
-    world.add(make_shared<Sphere>(Point3f(1.0f, 0.0f, -1.0f), 0.5f, material_right));
+    auto ground_material = make_shared<Lambertian>(Color3f(0.5f, 0.5f, 0.5f));
+    world.add(make_shared<Sphere>(Point3f(0.f, -1000.f, 0.f), 1000.f, ground_material));
+    for (int a = -11; a < 11; a++) {
+        for (int b = -11; b < 11; b++) {
+            auto choose_mat = random_float();
+            Point3f center(a + 0.9f*random_float(), 0.2f, b + 0.9f*random_float());
+            if ((center - Point3f(4.f, 0.2f, 0.f)).norm() > 0.9f) {
+                shared_ptr<Material> sphere_material;
+                if (choose_mat < 0.8f) {
+                    // diffuse
+                    auto albedo = random_vector() * random_vector();
+                    sphere_material = make_shared<Lambertian>(albedo);
+                    world.add(make_shared<Sphere>(center, 0.2f, sphere_material));
+                } else if (choose_mat < 0.95f) {
+                    // metal
+                    auto albedo = random_vector(0.5f, 1.f);
+                    auto fuzz = random_float(0.f, 0.5f);
+                    sphere_material = make_shared<Metal>(albedo, fuzz);
+                    world.add(make_shared<Sphere>(center, 0.2f, sphere_material));
+                } else {
+                    // glass
+                    sphere_material = make_shared<Dielectric>(1.5f);
+                    world.add(make_shared<Sphere>(center, 0.2f, sphere_material));
+                }
+            }
+        }
+    }
+    auto material1 = make_shared<Dielectric>(1.5f);
+    world.add(make_shared<Sphere>(Point3f(0.f, 1.f, 0.f), 1.0f, material1));
+    auto material2 = make_shared<Lambertian>(Color3f(0.4f, 0.2f, 0.1f));
+    world.add(make_shared<Sphere>(Point3f(-4.f, 1.f, 0.f), 1.0f, material2));
+    auto material3 = make_shared<Metal>(Color3f(0.7f, 0.6f, 0.5f), 0.0f);
+    world.add(make_shared<Sphere>(Point3f(4.f, 1.f, 0.f), 1.0f, material3));
 
     RayTracer raytracer(image);
+    raytracer.samples_per_pixel = 500;
+    raytracer.max_depth = 50;
+
+    raytracer.fovY = 20.f;
+    raytracer.eye = Point3f(13.f, 2.f, 3.f);
+    raytracer.lookat = Point3f(0.f, 0.f, 0.f);
+    
+    raytracer.defocus_angle = 0.6f;
+    raytracer.focus_dist = 10.f;
+
+    auto start = std::chrono::steady_clock::now();
     raytracer.render(world);
+    auto end = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration<double>(end - start).count();
+    std::cout << "Raytracing time consumption: " << duration << " secs" << std::endl;
 
     image.write_png_file("rst.png");
 

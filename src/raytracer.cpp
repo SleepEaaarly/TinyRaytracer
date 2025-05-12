@@ -2,24 +2,34 @@
 
 RayTracer::RayTracer(Image &img) {
     image = &img;
+}
 
+void RayTracer::init() {
     image_width = image->get_width();
     image_height = image->get_height();
-    focal_length = 1.0f;
-    float viewport_height = 2.0f;
+    float viewport_height = 2 * tanf(degrees_to_radians(fovY/2)) * focus_dist;
     float viewport_width = viewport_height * (float(image_width)/image_height);
-    center = Point3f(0.f, 0.f, 0.f);
-    Vec3f viewport_u = Vec3f(viewport_width, 0.f, 0.f);
-    Vec3f viewport_v = Vec3f(0.f, -viewport_height, 0.f);
+    center = eye;
+    z_cam = (center - lookat).unit();
+    Vec3f up = fabsf(z_cam.y) <= 0.999f ? Vec3f(0.f, 1.f, 0.f) : Vec3f(0.f, 0.f, -1.f);
+    x_cam = cross(up, z_cam);
+    y_cam = cross(z_cam, x_cam);
+
+    Vec3f viewport_u = viewport_width * x_cam;
+    Vec3f viewport_v = -viewport_height * y_cam;
 
     pixel_delta_u = viewport_u / float(image_width);
     pixel_delta_v = viewport_v / float(image_height);
 
-    Vec3f viewport_upper_left = center - Vec3f(0.f, 0.f, focal_length) - viewport_u/2.f - viewport_v/2.f;
+    Vec3f viewport_upper_left = center - (focus_dist * z_cam) - viewport_u/2.f - viewport_v/2.f;
     pixel00_loc = viewport_upper_left + 0.5f * (pixel_delta_u + pixel_delta_v);
+    auto defocus_radius = focus_dist * tanf(degrees_to_radians(defocus_angle / 2.f));
+    defocus_disk_u = x_cam * defocus_radius;
+    defocus_disk_v = y_cam * defocus_radius;
 }
 
 void RayTracer::render(const Hittable &world) {
+    init();
     for (int j = 0; j < image_height; ++j) {
         for (int i = 0; i < image_width; ++i) {
             Vec3f pixel_color;
@@ -37,8 +47,16 @@ Ray RayTracer::get_sample_ray(int i, int j) {
     Vec3f pixel_center = pixel00_loc + 
                         (i+random_float(-0.5f, 0.5f)) * pixel_delta_u +
                         (j+random_float(-0.5f, 0.5f)) * pixel_delta_v;
-    Vec3f dir = (pixel_center - center).unit();
-    return Ray(center, dir);
+    Vec3f ray_origin;
+    if (defocus_angle <= 0.f) {
+        ray_origin = center;
+    } else {
+        auto p = random_in_unit_disk();
+        ray_origin = center + p[0] * defocus_disk_u + p[1] * defocus_disk_v;
+    }
+
+    Vec3f dir = (pixel_center - ray_origin).unit();
+    return Ray(ray_origin, dir);
 }
 
 Color3f RayTracer::ray_color(const Ray &r, int depth, const Hittable &world) {
