@@ -16,6 +16,7 @@ using std::shared_ptr;
 #include "ray.h"
 #include "geometry.h"
 #include "interval.h"
+#include "path.h"
 
 // Constants
 const float pi = 3.1415927f;

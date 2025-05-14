@@ -22,7 +22,8 @@ int main() {
                     // diffuse
                     auto albedo = random_vector() * random_vector();
                     sphere_material = make_shared<Lambertian>(albedo);
-                    world.add(make_shared<Sphere>(center, 0.2f, sphere_material));
+                    auto center2 = center + Vec3f(0.f, random_float(0.f, 0.5f), 0.f);
+                    world.add(make_shared<Sphere>(center, center2, 0.2f, sphere_material));
                 } else if (choose_mat < 0.95f) {
                     // metal
                     auto albedo = random_vector(0.5f, 1.f);

@@ -56,7 +56,9 @@ Ray RayTracer::get_sample_ray(int i, int j) {
     }
 
     Vec3f dir = (pixel_center - ray_origin).unit();
-    return Ray(ray_origin, dir);
+    float ray_time = random_float();
+
+    return Ray(ray_origin, dir, ray_time);
 }
 
 Color3f RayTracer::ray_color(const Ray &r, int depth, const Hittable &world) {
