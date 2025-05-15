@@ -4,7 +4,9 @@
 #include "sphere.h"
 #include "image.h"
 #include "material.h"
+#include "bvh.h"
 #include <chrono>
+#include <stdexcept>
 
 int main() {
     Image image(1200, 675, Image::RGB);
@@ -57,7 +59,7 @@ int main() {
     raytracer.focus_dist = 10.f;
 
     auto start = std::chrono::steady_clock::now();
-    raytracer.render(world);
+    raytracer.render(BVHNode(world));
     auto end = std::chrono::steady_clock::now();
     auto duration = std::chrono::duration<double>(end - start).count();
     std::cout << "Raytracing time consumption: " << duration << " secs" << std::endl;

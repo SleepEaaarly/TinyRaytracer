@@ -8,5 +8,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # 添加头文件搜索路径
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
-add_executable(main src/main.cpp src/image.cpp src/raytracer.cpp src/sphere.cpp src/interval.cpp)
+add_executable(main src/main.cpp src/image.cpp src/raytracer.cpp src/sphere.cpp src/interval.cpp
+                    src/aabb.cpp)
 

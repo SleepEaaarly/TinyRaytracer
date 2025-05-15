@@ -36,6 +36,12 @@ inline float random_float(float min, float max) {
     return min + (max - min) * random_float();
 }
 
+inline int random_int(int min, int max) {
+    static std::uniform_int_distribution<int> distribution(min, max);
+    static std::mt19937 generator;
+    return distribution(generator);
+}
+
 inline Vec3f random_vector() {
     return Vec3f(random_float(), random_float(), random_float());
 }

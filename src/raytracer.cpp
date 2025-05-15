@@ -15,6 +15,7 @@ void RayTracer::init() {
     x_cam = cross(up, z_cam);
     y_cam = cross(z_cam, x_cam);
 
+    // viewport_u(_v)是代表像平面的长宽，而image_width(_height)代表的是长宽像素数(分辨率)
     Vec3f viewport_u = viewport_width * x_cam;
     Vec3f viewport_v = -viewport_height * y_cam;
 

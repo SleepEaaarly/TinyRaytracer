@@ -3,6 +3,9 @@
 
 class Path {
 public:
+    Vec3f src;
+    Vec3f dst;
+
     Path() = default;
     // static
     Path(const Vec3f &src) : src(src), dst(src) {}
@@ -12,10 +15,6 @@ public:
     Point3f at(float t) const {
         return src + t * (dst - src);
     }
-
-private:
-    Vec3f src;
-    Vec3f dst;
 };
 
 #endif
