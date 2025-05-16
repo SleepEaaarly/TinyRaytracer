@@ -25,7 +25,7 @@ public:
             left = hittables[start];
             right = hittables[start + 1];
             bbox = aabb(left->bounding_box(), right->bounding_box());
-        } else {        // 后序遍历：先构建左右子树(的包围盒)，再构建本节点的包围盒
+        } else {
             bbox = aabb::empty;
             for (int i = start; i < end; ++i) {
                 bbox = aabb(bbox, hittables[i]->bounding_box());

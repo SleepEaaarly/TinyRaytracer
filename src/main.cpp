@@ -8,11 +8,12 @@
 #include <chrono>
 #include <stdexcept>
 
-int main() {
+void bouncing_spheres() {
     Image image(1200, 675, Image::RGB);
     HittableList world;
 
-    auto ground_material = make_shared<Lambertian>(Color3f(0.5f, 0.5f, 0.5f));
+    auto checker = make_shared<CheckerTexture>(0.32f, Color3f(.2f, .3f, .1f), Color3f(.9f, .9f, .9f));
+    auto ground_material = make_shared<Lambertian>(checker);
     world.add(make_shared<Sphere>(Point3f(0.f, -1000.f, 0.f), 1000.f, ground_material));
     for (int a = -11; a < 11; a++) {
         for (int b = -11; b < 11; b++) {
@@ -48,14 +49,14 @@ int main() {
     world.add(make_shared<Sphere>(Point3f(4.f, 1.f, 0.f), 1.0f, material3));
 
     RayTracer raytracer(image);
-    raytracer.samples_per_pixel = 500;
-    raytracer.max_depth = 50;
+    raytracer.samples_per_pixel = 30;
+    raytracer.max_depth = 10;
 
     raytracer.fovY = 20.f;
     raytracer.eye = Point3f(13.f, 2.f, 3.f);
     raytracer.lookat = Point3f(0.f, 0.f, 0.f);
     
-    raytracer.defocus_angle = 0.6f;
+    raytracer.defocus_angle = 0.f;
     raytracer.focus_dist = 10.f;
 
     auto start = std::chrono::steady_clock::now();
@@ -65,6 +66,41 @@ int main() {
     std::cout << "Raytracing time consumption: " << duration << " secs" << std::endl;
 
     image.write_png_file("rst.png");
+}
+
+void checkered_spheres() {
+    Image image(400, 225, Image::RGB);
+    HittableList world;   
+    
+    auto checker = make_shared<CheckerTexture>(0.32f, Color3f(.2f, .3f, .1f), Color3f(.9f, .9f, .9f));
+
+    // world.add(make_shared<Sphere>(Point3f(0.f, -10.f, 0.f), 10.f, make_shared<Lambertian>(checker)));
+    // world.add(make_shared<Sphere>(Point3f(0.f, 10.f, 0.f), 10.f, make_shared<Lambertian>(checker)));
+    world.add(make_shared<Sphere>(Point3f(0.f, 0.f, 0.f), 5.f, make_shared<Lambertian>(checker)));
+
+    RayTracer raytracer(image);
+    raytracer.samples_per_pixel = 30;
+    raytracer.max_depth = 10;
+
+    raytracer.fovY = 20.f;
+    raytracer.eye = Point3f(13.f, 2.f, 3.f);
+    raytracer.lookat = Point3f(0.f, 0.f, 0.f);
+    
+    raytracer.defocus_angle = 0.f;
+    raytracer.focus_dist = 10.f;
+
+    auto start = std::chrono::steady_clock::now();
+    raytracer.render(BVHNode(world));
+    auto end = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration<double>(end - start).count();
+    std::cout << "Raytracing time consumption: " << duration << " secs" << std::endl;
+
+    image.write_png_file("rst.png");
+}
+
+int main() {
+    // bouncing_spheres();
+    checkered_spheres();
 
     return 0;
 }
