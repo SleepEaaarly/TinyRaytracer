@@ -98,9 +98,39 @@ void checkered_spheres() {
     image.write_png_file("rst.png");
 }
 
+void earth() {
+    Image image(400, 225, Image::RGB);
+    HittableList world;  
+
+    auto earth_texture = make_shared<ImageTexture>("../images/earthmap.jpg");
+    auto earth_surface = make_shared<Lambertian>(earth_texture);
+    auto globe = make_shared<Sphere>(Point3f(0.f,0.f,0.f), 2.f, earth_surface);
+    world.add(globe);
+
+    RayTracer raytracer(image);
+    raytracer.samples_per_pixel = 30;
+    raytracer.max_depth = 10;
+
+    raytracer.fovY = 20.f;
+    raytracer.eye = Point3f(0.f, 0.f, 12.f);
+    raytracer.lookat = Point3f(0.f, 0.f, 0.f);
+    
+    raytracer.defocus_angle = 0.f;
+    raytracer.focus_dist = 10.f;
+
+    auto start = std::chrono::steady_clock::now();
+    raytracer.render(BVHNode(world));
+    auto end = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration<double>(end - start).count();
+    std::cout << "Raytracing time consumption: " << duration << " secs" << std::endl;
+
+    image.write_png_file("rst.png");
+}
+
 int main() {
     // bouncing_spheres();
-    checkered_spheres();
+    // checkered_spheres();
+    earth();
 
     return 0;
 }

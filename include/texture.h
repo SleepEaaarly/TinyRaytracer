@@ -48,3 +48,22 @@ private:
     shared_ptr<Texture> even;
     shared_ptr<Texture> odd;
 };
+
+class ImageTexture : public Texture {
+private:
+    shared_ptr<Image> image;
+public:
+    ImageTexture(const char* filename) : image(make_shared<Image>(filename)) {}
+
+    Color3f value(float u, float v, const Point3f& p) const override {
+        if (image->get_height() <= 0)   return Color3f(0.f, 1.f, 1.f);
+
+        u = Interval(0.f, 1.f).clamp(u);
+        v = 1.f - Interval(0.f, 1.f).clamp(v);
+        auto i = static_cast<int>(u * image->get_width());
+        auto j = static_cast<int>(v * image->get_height());
+        Color pixel = image->get(i, j);
+
+        return color2Vec(pixel).cutVec3();
+    }
+};

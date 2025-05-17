@@ -59,7 +59,7 @@ private:
     shared_ptr<Material> mat;
     aabb bbox;
 
-    void get_sphere_uv(const Point3f& p, float& u, float& v) const {
+    static void get_sphere_uv(const Point3f& p, float& u, float& v) {
         // u: return value [0,1] of angle around Y axis from X=-1
         // v: return value [0,1] of angle from Y=-1 to Y=+1
 
