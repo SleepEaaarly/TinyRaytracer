@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rtweekend.h"
+#include "perlin.h"
 
 class Texture {
 public:
@@ -66,4 +67,16 @@ public:
 
         return color2Vec(pixel).cutVec3();
     }
+};
+
+class NoiseTexture : public Texture {
+private:
+    Perlin noise;
+public:
+    NoiseTexture() {}
+
+    Color3f value(float u, float v, const Point3f& p) const {
+        return Color3f(1.f, 1.f, 1.f) * noise.noise(p);
+    }
+
 };
