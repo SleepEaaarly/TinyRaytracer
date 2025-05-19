@@ -40,7 +40,7 @@ public:
         auto p = ray.at(t);
         auto alpha = dot(w, cross(p-Q, v));
         auto beta = dot(w, cross(u, p-Q));
-        if (!Interval::unit.contains(alpha) || !Interval::unit.contains(beta) || !Interval::unit.contains(alpha + beta)) 
+        if (!(alpha >= 0.f && beta >= 0.f && alpha + beta <= 1.f)) 
             return false;
         
         rec.u = alpha;
