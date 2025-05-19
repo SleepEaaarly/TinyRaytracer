@@ -72,11 +72,11 @@ public:
 class NoiseTexture : public Texture {
 private:
     Perlin noise;
+    float scale;
 public:
-    NoiseTexture() {}
+    NoiseTexture(float scale) : scale(scale) {}
 
     Color3f value(float u, float v, const Point3f& p) const {
-        return Color3f(1.f, 1.f, 1.f) * noise.noise(p);
+        return Color3f(1.f, 1.f, 1.f) * 0.5f * (1.f + std::sin(scale * p.z + 10 * noise.turb(p, 7)));
     }
-
 };

@@ -127,10 +127,41 @@ void earth() {
     image.write_png_file("rst.png");
 }
 
+void perlin_spheres() {
+    Image image(400, 225, Image::RGB);
+    HittableList world;
+    
+    auto pertext = make_shared<NoiseTexture>(4.f);
+    world.add(make_shared<Sphere>(Point3f(0.f, -1000.f, 0.f), 1000.f, make_shared<Lambertian>(pertext)));
+    world.add(make_shared<Sphere>(Point3f(0.f, 2.f, 0.f), 2.f, make_shared<Lambertian>(pertext)));
+
+    RayTracer raytracer(image);
+    raytracer.samples_per_pixel = 30;
+    raytracer.max_depth = 10;
+
+    raytracer.fovY = 20.f;
+    raytracer.eye = Point3f(13.f, 2.f, 3.f);
+    raytracer.lookat = Point3f(0.f, 0.f, 0.f);
+    
+    raytracer.defocus_angle = 0.f;
+    raytracer.focus_dist = 10.f;
+
+    auto start = std::chrono::steady_clock::now();
+    raytracer.render(BVHNode(world));
+    auto end = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration<double>(end - start).count();
+    std::cout << "Raytracing time consumption: " << duration << " secs" << std::endl;
+
+    image.write_png_file("rst.png");
+}
+
 int main() {
-    // bouncing_spheres();
-    // checkered_spheres();
-    earth();
+    switch (4) {
+        case 1: bouncing_spheres(); break;
+        case 2: checkered_spheres(); break;
+        case 3: earth(); break;
+        case 4: perlin_spheres(); break;
+    }
 
     return 0;
 }
