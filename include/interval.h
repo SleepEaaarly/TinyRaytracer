@@ -37,7 +37,7 @@ public:
         return Interval(min - padding, max + padding);
     }
 
-    static const Interval empty, universe;
+    static const Interval empty, universe, unit;
 };
 
 #endif

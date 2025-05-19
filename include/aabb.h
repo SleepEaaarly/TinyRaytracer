@@ -9,12 +9,15 @@ public:
 
     aabb() {}
     
-    aabb(const Interval &x, const Interval &y, const Interval &z) : x(x), y(y), z(z) {}
+    aabb(const Interval &x, const Interval &y, const Interval &z) : x(x), y(y), z(z) {
+        pad_to_minimums();
+    }
 
     aabb(const Point3f &a, const Point3f &b) {
         x = (a[0] <= b[0]) ? Interval(a[0], b[0]) : Interval(b[0], a[0]);
         y = (a[1] <= b[1]) ? Interval(a[1], b[1]) : Interval(b[1], a[1]);
         z = (a[2] <= b[2]) ? Interval(a[2], b[2]) : Interval(b[2], a[2]);
+        pad_to_minimums();
     }
 
     aabb(const aabb &a, const aabb &b) {
@@ -64,6 +67,14 @@ public:
     }
 
     static const aabb empty, universe;
+
+private:
+    void pad_to_minimums() {
+        float delta = 0.0001f;
+        if (x.size() < delta)   x = x.expand(delta);
+        if (y.size() < delta)   y = y.expand(delta);
+        if (z.size() < delta)   z = z.expand(delta);
+    }
 };
 
 #endif 

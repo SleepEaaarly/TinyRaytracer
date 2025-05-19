@@ -5,8 +5,9 @@
 #include "image.h"
 #include "material.h"
 #include "bvh.h"
+#include "quad.h"
+#include "mesh.h"
 #include <chrono>
-#include <stdexcept>
 
 void bouncing_spheres() {
     Image image(1200, 675, Image::RGB);
@@ -57,7 +58,6 @@ void bouncing_spheres() {
     raytracer.lookat = Point3f(0.f, 0.f, 0.f);
     
     raytracer.defocus_angle = 0.f;
-    raytracer.focus_dist = 10.f;
 
     auto start = std::chrono::steady_clock::now();
     raytracer.render(BVHNode(world));
@@ -87,7 +87,6 @@ void checkered_spheres() {
     raytracer.lookat = Point3f(0.f, 0.f, 0.f);
     
     raytracer.defocus_angle = 0.f;
-    raytracer.focus_dist = 10.f;
 
     auto start = std::chrono::steady_clock::now();
     raytracer.render(BVHNode(world));
@@ -116,7 +115,6 @@ void earth() {
     raytracer.lookat = Point3f(0.f, 0.f, 0.f);
     
     raytracer.defocus_angle = 0.f;
-    raytracer.focus_dist = 10.f;
 
     auto start = std::chrono::steady_clock::now();
     raytracer.render(BVHNode(world));
@@ -144,7 +142,41 @@ void perlin_spheres() {
     raytracer.lookat = Point3f(0.f, 0.f, 0.f);
     
     raytracer.defocus_angle = 0.f;
-    raytracer.focus_dist = 10.f;
+
+    auto start = std::chrono::steady_clock::now();
+    raytracer.render(BVHNode(world));
+    auto end = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration<double>(end - start).count();
+    std::cout << "Raytracing time consumption: " << duration << " secs" << std::endl;
+
+    image.write_png_file("rst.png");
+}
+
+void quad_mesh() {
+    Image image(400, 400, Image::RGB);
+    HittableList world;
+
+    auto left_red = make_shared<Lambertian>(Color3f(1.0, 0.2, 0.2));
+    auto back_green = make_shared<Lambertian>(Color3f(0.2, 1.0, 0.2));
+    auto right_blue = make_shared<Lambertian>(Color3f(0.2, 0.2, 1.0));
+    auto upper_orange = make_shared<Lambertian>(Color3f(1.0, 0.5, 0.0));
+    auto lower_teal = make_shared<Lambertian>(Color3f(0.2, 0.8, 0.8));
+
+    world.add(make_shared<Quad>(Point3f(-3,-2, 5), Vec3f(0, 0,-4), Vec3f(0, 4, 0), left_red));
+    world.add(make_shared<Mesh>(Point3f(-2,-2, 0), Vec3f(4, 0, 0), Vec3f(0, 4, 0), back_green));
+    world.add(make_shared<Quad>(Point3f( 3,-2, 1), Vec3f(0, 0, 4), Vec3f(0, 4, 0), right_blue));
+    world.add(make_shared<Quad>(Point3f(-2, 3, 1), Vec3f(4, 0, 0), Vec3f(0, 0, 4), upper_orange));
+    world.add(make_shared<Mesh>(Point3f(-2,-3, 5), Vec3f(4, 0, 0), Vec3f(0, 0,-4), lower_teal));
+
+    RayTracer raytracer(image);
+    raytracer.samples_per_pixel = 30;
+    raytracer.max_depth = 10;
+
+    raytracer.fovY = 80.f;
+    raytracer.eye = Point3f(0.f, 0.f, 9.f);
+    raytracer.lookat = Point3f(0.f, 0.f, 0.f);
+    
+    raytracer.defocus_angle = 0.f;
 
     auto start = std::chrono::steady_clock::now();
     raytracer.render(BVHNode(world));
@@ -156,11 +188,12 @@ void perlin_spheres() {
 }
 
 int main() {
-    switch (4) {
+    switch (5) {
         case 1: bouncing_spheres(); break;
         case 2: checkered_spheres(); break;
         case 3: earth(); break;
         case 4: perlin_spheres(); break;
+        case 5: quad_mesh(); break;
     }
 
     return 0;
