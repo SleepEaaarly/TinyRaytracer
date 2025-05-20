@@ -53,6 +53,14 @@ public:
         return bbox;
     }
 
+    void translate(const Vec3f& offset) override {
+        center.src = center.src + offset;
+        center.dst = center.dst + offset;
+        bbox = bbox + offset;
+    }
+
+    void rotate_y(float theta) override {}
+
 private:
     Path center;
     float radius;

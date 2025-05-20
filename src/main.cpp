@@ -1,12 +1,13 @@
 #include "rtweekend.h"
 #include "hittable_list.h"
 #include "raytracer.h"
-#include "sphere.h"
+#include "Sphere.h"
 #include "image.h"
 #include "material.h"
 #include "bvh.h"
-#include "quad.h"
+#include "Quad.h"
 #include "mesh.h"
+#include "constant_medium.h"
 #include <chrono>
 
 void bouncing_spheres() {
@@ -152,6 +153,7 @@ void perlin_spheres() {
     image.write_png_file("rst.png");
 }
 
+
 void quad_mesh() {
     Image image(400, 400, Image::RGB);
     HittableList world;
@@ -187,13 +189,174 @@ void quad_mesh() {
     image.write_png_file("rst.png");
 }
 
+void cornell_box() {
+    Image image(600, 600, Image::RGB);
+
+    HittableList world;
+    auto red = make_shared<Lambertian>(Color3f(.65, .05, .05));
+    auto white = make_shared<Lambertian>(Color3f(.73, .73, .73));
+    auto green = make_shared<Lambertian>(Color3f(.12, .45, .15));
+    auto light = make_shared<DiffuseLight>(Color3f(15, 15, 15));
+
+    world.add(make_shared<Quad>(Point3f(555,0,0), Vec3f(0,555,0), Vec3f(0,0,555), green));
+    world.add(make_shared<Quad>(Point3f(0,0,0), Vec3f(0,555,0), Vec3f(0,0,555), red));
+    world.add(make_shared<Quad>(Point3f(343, 554, 332), Vec3f(-130,0,0), Vec3f(0,0,-105), light));
+    world.add(make_shared<Quad>(Point3f(0,0,0), Vec3f(555,0,0), Vec3f(0,0,555), white));
+    world.add(make_shared<Quad>(Point3f(555,555,555), Vec3f(-555,0,0), Vec3f(0,0,-555), white));
+    world.add(make_shared<Quad>(Point3f(0,0,555), Vec3f(555,0,0), Vec3f(0,555,0), white));
+
+    shared_ptr<Hittable> box1 = make_shared<Box>(Point3f(0, 0, 0), Point3f(165, 330, 165), white);
+    box1->rotate_y(15);
+    box1->translate(Vec3f(265, 0, 295));
+    world.add(box1);
+    
+    shared_ptr<Hittable> box2 = make_shared<Box>(Point3f(0, 0, 0), Point3f(165, 165, 165), white);
+    box2->rotate_y(-18);
+    box2->translate(Vec3f(130, 0, 65));
+    world.add(box2);
+
+    RayTracer raytracer(image);
+    raytracer.samples_per_pixel = 30;
+    raytracer.max_depth = 10;
+    raytracer.background = Color3f(0.0f, 0.0f, 0.0f);
+
+    raytracer.fovY = 40.f;
+    raytracer.eye = Point3f(278.f, 278.f, -800.f);
+    raytracer.lookat = Point3f(278.f, 278.f, 0.f);
+    
+    raytracer.defocus_angle = 0.f;
+
+    auto start = std::chrono::steady_clock::now();
+    raytracer.render(BVHNode(world));
+    auto end = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration<double>(end - start).count();
+    std::cout << "Raytracing time consumption: " << duration << " secs" << std::endl;
+
+    image.write_png_file("rst.png");
+}
+
+void box() {
+    Image image(600, 600, Image::RGB);
+
+    HittableList world;
+    auto red = make_shared<Lambertian>(Color3f(.65, .05, .05));
+    auto white = make_shared<Lambertian>(Color3f(.73, .73, .73));
+    auto green = make_shared<Lambertian>(Color3f(.12, .45, .15));
+    auto light = make_shared<DiffuseLight>(Color3f(15, 15, 15));
+
+    shared_ptr<Hittable> box1 = make_shared<Box>(Point3f(0, 0, 0), Point3f(165, 330, 165), white);
+    box1->translate(Vec3f(265, 0, 295));
+    box1->rotate_y(15);
+    world.add(box1);
+    
+    shared_ptr<Hittable> box2 = make_shared<Box>(Point3f(0, 0, 0), Point3f(165, 165, 165), white);
+    box2->translate(Vec3f(130, 0, 65));
+    box2->rotate_y(-18);
+    world.add(box2);
+
+    RayTracer raytracer(image);
+    raytracer.samples_per_pixel = 30;
+    raytracer.max_depth = 10;
+    raytracer.background = Color3f(0.7f, 0.8f, 1.f);
+
+    raytracer.fovY = 40.f;
+    raytracer.eye = Point3f(278.f, 278.f, -800.f);
+    raytracer.lookat = Point3f(278.f, 278.f, 0.f);
+    
+    raytracer.defocus_angle = 0.f;
+
+    auto start = std::chrono::steady_clock::now();
+    raytracer.render(BVHNode(world));
+    auto end = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration<double>(end - start).count();
+    std::cout << "Raytracing time consumption: " << duration << " secs" << std::endl;
+
+    image.write_png_file("rst.png");
+}
+
+void final_scene() {
+    Image image(800, 800, Image::RGB);
+
+    HittableList boxes1;
+    auto ground = make_shared<Lambertian>(Color3f(0.48, 0.83, 0.53));
+    int boxes_per_side = 20;
+    for (int i = 0; i < boxes_per_side; i++) {
+        for (int j = 0; j < boxes_per_side; j++) {
+            auto w = 100.0;
+            auto x0 = -1000.0 + i*w;
+            auto z0 = -1000.0 + j*w;
+            auto y0 = 0.0;
+            auto x1 = x0 + w;
+            auto y1 = random_float(1,101);
+            auto z1 = z0 + w;
+            boxes1.add(make_shared<Box>(Point3f(x0,y0,z0), Point3f(x1,y1,z1), ground));
+        }
+    }
+
+    HittableList world;
+    world.add(make_shared<BVHNode>(boxes1));
+    auto light = make_shared<DiffuseLight>(Color3f(7, 7, 7));
+    world.add(make_shared<Quad>(Point3f(123,554,147), Vec3f(300,0,0), Vec3f(0,0,265), light));
+    auto center1 = Point3f(400, 400, 200);
+    auto center2 = center1 + Vec3f(30,0,0);
+    auto sphere_material = make_shared<Lambertian>(Color3f(0.7, 0.3, 0.1));
+    world.add(make_shared<Sphere>(center1, center2, 50, sphere_material));
+    world.add(make_shared<Sphere>(Point3f(260, 150, 45), 50, make_shared<Dielectric>(1.5)));
+    world.add(make_shared<Sphere>(
+        Point3f(0, 150, 145), 50, make_shared<Metal>(Color3f(0.8, 0.8, 0.9), 1.0)
+    ));
+    auto boundary = make_shared<Sphere>(Point3f(360,150,145), 70, make_shared<Dielectric>(1.5));
+    world.add(boundary);
+    world.add(make_shared<ConstantMedium>(boundary, 0.2f, Color3f(0.2, 0.4, 0.9)));
+    boundary = make_shared<Sphere>(Point3f(0,0,0), 5000, make_shared<Dielectric>(1.5));
+    world.add(make_shared<ConstantMedium>(boundary, .0001f, Color3f(1,1,1)));
+    auto emat = make_shared<Lambertian>(make_shared<ImageTexture>("../images/earthmap.jpg"));
+    world.add(make_shared<Sphere>(Point3f(400,200,400), 100, emat));
+    auto pertext = make_shared<NoiseTexture>(0.2);
+    world.add(make_shared<Sphere>(Point3f(220,280,300), 80, make_shared<Lambertian>(pertext)));
+    HittableList boxes2;
+    auto white = make_shared<Lambertian>(Color3f(.73, .73, .73));
+    int ns = 1000;
+
+    for (int j = 0; j < ns; j++) {
+        boxes2.add(make_shared<Sphere>(random_vector(0, 165), 10.f, white));
+    }
+
+    boxes2.rotate_y(15);
+    boxes2.translate(Vec3f(-100, 270, 395));
+    world.add(make_shared<BVHNode>(boxes2));
+
+    RayTracer raytracer(image);
+    raytracer.samples_per_pixel = 500;
+    raytracer.max_depth = 40;
+    raytracer.background = Color3f(0.f, 0.f, 0.f);
+
+    raytracer.fovY = 40.f;
+    raytracer.eye = Point3f(478.f, 278.f, -600.f);
+    raytracer.lookat = Point3f(278.f, 278.f, 0.f);
+    
+    raytracer.defocus_angle = 0.f;
+
+    auto start = std::chrono::steady_clock::now();
+    raytracer.render(BVHNode(world));
+    auto end = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration<double>(end - start).count();
+    std::cout << "Raytracing time consumption: " << duration << " secs" << std::endl;
+
+    image.write_png_file("rst.png");
+
+}
+
 int main() {
-    switch (5) {
+    switch (9) {
         case 1: bouncing_spheres(); break;
         case 2: checkered_spheres(); break;
         case 3: earth(); break;
         case 4: perlin_spheres(); break;
         case 5: quad_mesh(); break;
+        case 6: box(); break;
+        case 7: cornell_box(); break;
+        case 9: final_scene(); break;
     }
 
     return 0;

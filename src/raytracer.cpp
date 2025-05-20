@@ -63,22 +63,22 @@ Ray RayTracer::get_sample_ray(int i, int j) {
 }
 
 Color3f RayTracer::ray_color(const Ray &r, int depth, const Hittable &world) {
+    // it means ray bounces between objects all the time and no light(emit or background) is touched.
     if (depth <= 0) 
         return Color3f(0.f, 0.f, 0.f);
     
     // Raytracing process
     HitRecord rec;
-    if (world.hit(r, Interval(0.001f, INFINITY), rec)) {
-        Ray scattered;
-        Color3f attenuation;
-        if (rec.mat->scatter(r, rec, attenuation, scattered)) {
-            return attenuation * ray_color(scattered, depth - 1, world);
-        }
-        return Color3f(0.f, 0.f, 0.f);
-    }
+    if (!world.hit(r, Interval(0.001f, INFINITY), rec))
+        return background;
 
-    // Background Color
-    Vec3f ray_dir = r.direction();
-    auto t = 0.5f * (ray_dir.y + 1.0f);
-    return (1.f-t)*Color3f(1.0f, 1.0f, 1.0f)+t*Color3f(0.5f, 0.7f, 1.0f);
+    Vec3f attenuation;
+    Ray scattered;
+    auto emit_color = rec.mat->emit(rec.u, rec.v, rec.p);
+    if (!rec.mat->scatter(r, rec, attenuation, scattered))
+        return emit_color;
+    
+    auto scatter_color = attenuation * ray_color(scattered, depth-1, world);
+
+    return scatter_color + emit_color;      // in fact, no material designed emit and scatter light at the same time.
 }

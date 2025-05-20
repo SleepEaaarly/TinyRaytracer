@@ -52,5 +52,32 @@ public:
 
         return true;
     }
+    
+    void translate(const Vec3f& offset) override {
+        Q = Q + offset;
+        bbox = bbox + offset;
+    }
 
+    void rotate_y(float theta) override {   // rotate around mass_point y_axis
+        theta = degrees_to_radians(theta);
+        Point3f mass_point = Q + u / 3.f + v / 3.f;
+        auto Q_x = Q.x - mass_point.x;
+        auto Q_z = Q.z - mass_point.z;
+        Q.x = Q_x * std::cos(theta) + Q_z * std::sin(theta) + mass_point.x;
+        Q.z = Q_x * -std::sin(theta) + Q_z * std::cos(theta) + mass_point.z;
+        float u_x, u_z, v_x, v_z;
+        u_x = u.x; u_z = u.z; v_x = v.x; v_z = v.z;
+        u.x = u_x * std::cos(theta) + u_z * std::sin(theta);
+        u.z = u_x * -std::sin(theta) + u_z * std::cos(theta);
+        v.x = v_x * std::cos(theta) + v_z * std::sin(theta);
+        v.z = v_x * -std::sin(theta) + v_z * std::cos(theta);
+
+        auto n = cross(u, v);
+        w = n / dot(n, n);
+        normal = n.unit();
+
+        auto bbox1 = aabb(Q, Q + u);
+        auto bbox2 = aabb(Q, Q + v);
+        bbox = aabb(bbox1, bbox2);
+    }
 };

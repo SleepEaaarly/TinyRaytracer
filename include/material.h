@@ -8,9 +8,16 @@ class Material {
 public:
     virtual ~Material() = default;
 
+    virtual Color3f emit(float u, float v, const Point3f& p) const {
+        return Color3f(0.f, 0.f, 0.f);
+    }
+
     virtual bool scatter(
         const Ray &r_in, const HitRecord &rec, Vec3f &attenuation, Ray &scattered 
-    ) const = 0;
+    ) const {
+        attenuation = Color3f(0.f, 0.f, 0.f);
+        return false;
+    }
 };
 
 class Lambertian : public Material {
@@ -46,10 +53,14 @@ public:
     const override {
         Vec3f refl = reflect(r_in.direction(), rec.normal);
         refl = refl.unit() + fuzz * random_unit_vector();
+        bool will_scatter = dot(refl, rec.normal) > 0.f;
+        if (!will_scatter) {
+            attenuation = Color3f(0.f, 0.f, 0.f);
+            return false;
+        } 
         scattered = Ray(rec.p, refl, r_in.time());
         attenuation = albedo;
-
-        return (dot(scattered.direction(), rec.normal) > 0.f);
+        return true;
     }
 };
 
@@ -81,6 +92,33 @@ public:
         scattered = Ray(rec.p, scattered_direction, r_in.time());
         return true;
     } 
+};
+
+class DiffuseLight : public Material {
+private:
+    shared_ptr<Texture> tex;
+public:
+    DiffuseLight(shared_ptr<Texture> tex) : tex(tex) {}
+    DiffuseLight(const Color3f& emit) : tex(make_shared<SolidColor>(emit)) {}
+
+    Color3f emit(float u, float v, const Point3f& p) const override {
+        return tex->value(u, v, p);
+    }
+};
+
+class Isotropic : public Material {
+private:
+    shared_ptr<Texture> tex;
+public:
+    Isotropic(const Color3f& albedo) : tex(make_shared<SolidColor>(albedo)) {}
+    Isotropic(shared_ptr<Texture> tex) : tex(tex) {}
+
+    bool scatter(const Ray& r_in, const HitRecord& rec, Color3f& attenuation, Ray& scattered) 
+    const override {
+        scattered = Ray(rec.p, random_unit_vector(), r_in.time());
+        attenuation = tex->value(rec.u, rec.v, rec.p);
+        return true;
+    }
 };
 
 #endif

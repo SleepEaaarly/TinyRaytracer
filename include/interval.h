@@ -40,4 +40,12 @@ public:
     static const Interval empty, universe, unit;
 };
 
+inline Interval operator+(const Interval& inter, float offset) {
+    return Interval(inter.min + offset, inter.max + offset);
+}
+
+inline Interval operator+(float offset, const Interval& inter) {
+    return inter + offset;
+}
+
 #endif

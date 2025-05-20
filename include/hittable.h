@@ -32,6 +32,10 @@ public:
     virtual bool hit(const Ray &ray, Interval ray_t, HitRecord &rec) const = 0;
 
     virtual aabb bounding_box() const = 0;
+
+    virtual void translate(const Vec3f& offset) = 0;
+
+    virtual void rotate_y(float theta) = 0;
 };
 
 

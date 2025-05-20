@@ -17,6 +17,7 @@ public:
 
     float defocus_angle = 0.f;
     float focus_dist = 10.f;
+    Color3f background = Color3f(0.7f, 0.8f, 1.0f);
 
     RayTracer(Image &img);
     void render(const Hittable &world);

@@ -77,4 +77,12 @@ private:
     }
 };
 
+inline aabb operator+(const aabb& bbox, const Vec3f& offset) {
+    return aabb(bbox.x + offset.x, bbox.y + offset.y, bbox.z + offset.z);
+}
+
+inline aabb operator+(const Vec3f& offset, const aabb& bbox) {
+    return bbox + offset;
+}
+
 #endif 

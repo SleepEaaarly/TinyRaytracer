@@ -56,6 +56,18 @@ public:
         return bbox;
     }
 
+    void translate(const Vec3f& offset) override {
+        left->translate(offset);
+        right->translate(offset);
+        bbox = bbox + offset;
+    }
+
+    void rotate_y(float theta) override {
+        left->rotate_y(theta);
+        right->rotate_y(theta);
+        bbox = aabb(left->bounding_box(), right->bounding_box());
+    }
+
 private:
 
     static bool box_compare(const shared_ptr<Hittable> a, const shared_ptr<Hittable> b, int axis) {

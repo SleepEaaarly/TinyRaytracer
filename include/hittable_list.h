@@ -40,6 +40,21 @@ public:
     aabb bounding_box() const override {
         return bbox;
     }
+
+    void translate(const Vec3f& offset) override {
+        for (auto &object : objects) {
+            object->translate(offset);
+        }
+        bbox = bbox + offset;
+    }
+
+    void rotate_y(float theta) override {
+        aabb bbox;
+        for (auto& object : objects) {
+            object->rotate_y(theta);
+            bbox = aabb(bbox, object->bounding_box());
+        }
+    }
 };
 
 #endif 
