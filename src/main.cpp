@@ -216,7 +216,7 @@ void cornell_box() {
     world.add(box2);
 
     RayTracer raytracer(image);
-    raytracer.samples_per_pixel = 30;
+    raytracer.samples_per_pixel = 64;
     raytracer.max_depth = 10;
     raytracer.background = Color3f(0.0f, 0.0f, 0.0f);
 
@@ -348,7 +348,7 @@ void final_scene() {
 }
 
 int main() {
-    switch (9) {
+    switch (7) {
         case 1: bouncing_spheres(); break;
         case 2: checkered_spheres(); break;
         case 3: earth(); break;

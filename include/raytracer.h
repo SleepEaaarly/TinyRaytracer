@@ -10,6 +10,9 @@
 class RayTracer {
 public:
     int samples_per_pixel = 30;
+    int sqrt_spp;
+    float recip_sqrt_spp;
+    float pixel_samples_scale;
     int max_depth = 50;
     float fovY = 90.f;
     Point3f eye = Point3f(0.f, 0.f, 0.f);
@@ -36,7 +39,9 @@ private:
     Vec3f defocus_disk_v;
 
     Color3f ray_color(const Ray &r, int depth, const Hittable &world);   
-    Ray get_sample_ray(int i, int j);
+    Ray get_sample_ray(int i, int j) const;
+    Ray get_sample_ray(int i, int j, int s_i, int s_j) const;
+    Vec3f sample_square_stratified(int s_i, int s_j) const;
     void init();
 };
 
