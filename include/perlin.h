@@ -8,7 +8,6 @@ private:
     int perm_x[point_count];
     int perm_y[point_count];
     int perm_z[point_count];
-    // Vec3f randomVector[point_count];
 
     static void perlin_generate_perm(int* p) {
         for (int i = 0; i < point_count; ++i) 
@@ -67,9 +66,6 @@ private:
 
 public:
     Perlin() {
-        // for (int i = 0; i < point_count; ++i) {
-        //     randomVector[i] = random_unit_vector();
-        // }
         perlin_generate_perm(perm_x);
         perlin_generate_perm(perm_y);
         perlin_generate_perm(perm_z);
@@ -112,8 +108,6 @@ public:
             temp_p *= 2.f;
             weight *= 0.5f;
         }
-
         return std::fabs(accum);
     }
-
 };
