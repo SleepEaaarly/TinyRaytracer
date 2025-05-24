@@ -38,8 +38,9 @@ public:
             return false;
 
         auto p = ray.at(t);
-        auto alpha = dot(w, cross(p-Q, v));
-        auto beta = dot(w, cross(u, p-Q));
+        auto planar_hitpt_vector = p - Q;
+        auto alpha = dot(w, cross(planar_hitpt_vector, v));
+        auto beta = dot(w, cross(u, planar_hitpt_vector));
         if (!Interval::unit.contains(alpha) || !Interval::unit.contains(beta)) 
             return false;
         

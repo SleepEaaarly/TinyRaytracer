@@ -68,7 +68,7 @@ Ray RayTracer::get_sample_ray(int i, int j) const {
         ray_origin = center + p[0] * defocus_disk_u + p[1] * defocus_disk_v;
     }
 
-    Vec3f dir = (pixel_center - ray_origin).unit();
+    Vec3f dir = pixel_center - ray_origin;
     float ray_time = random_float();
 
     return Ray(ray_origin, dir, ray_time);
@@ -117,7 +117,12 @@ Color3f RayTracer::ray_color(const Ray &r, int depth, const Hittable &world) {
     if (!rec.mat->scatter(r, rec, attenuation, scattered))
         return emit_color;
     
-    auto scatter_color = attenuation * ray_color(scattered, depth-1, world);
+    auto scatter_pdf = rec.mat->scattering_pdf(r, rec, scattered);
+    auto pdf_value = scatter_pdf;
+
+    Color3f scatter_color;
+    if (pdf_value < 1e-6)   scatter_color = Color3f(0.f, 0.f, 0.f);  
+    else scatter_color = attenuation * ray_color(scattered, depth-1, world) / pdf_value;
 
     return scatter_color + emit_color;      // in fact, no material designed emit and scatter light at the same time.
 }

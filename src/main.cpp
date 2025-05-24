@@ -193,17 +193,18 @@ void cornell_box() {
     Image image(600, 600, Image::RGB);
 
     HittableList world;
-    auto red = make_shared<Lambertian>(Color3f(.65, .05, .05));
-    auto white = make_shared<Lambertian>(Color3f(.73, .73, .73));
-    auto green = make_shared<Lambertian>(Color3f(.12, .45, .15));
-    auto light = make_shared<DiffuseLight>(Color3f(15, 15, 15));
+    auto red = make_shared<Lambertian>(Color3f(.65f, .05f, .05f));
+    auto white = make_shared<Lambertian>(Color3f(.73f, .73f, .73f));
+    auto green = make_shared<Lambertian>(Color3f(.12f, .45f, .15f));
+    auto light = make_shared<DiffuseLight>(Color3f(15.f, 15.f, 15.f));
 
-    world.add(make_shared<Quad>(Point3f(555,0,0), Vec3f(0,555,0), Vec3f(0,0,555), green));
-    world.add(make_shared<Quad>(Point3f(0,0,0), Vec3f(0,555,0), Vec3f(0,0,555), red));
-    world.add(make_shared<Quad>(Point3f(343, 554, 332), Vec3f(-130,0,0), Vec3f(0,0,-105), light));
-    world.add(make_shared<Quad>(Point3f(0,0,0), Vec3f(555,0,0), Vec3f(0,0,555), white));
-    world.add(make_shared<Quad>(Point3f(555,555,555), Vec3f(-555,0,0), Vec3f(0,0,-555), white));
-    world.add(make_shared<Quad>(Point3f(0,0,555), Vec3f(555,0,0), Vec3f(0,555,0), white));
+    world.add(make_shared<Quad>(Point3f(555,0,0), Vec3f(0,0,555), Vec3f(0,555,0), green));
+    world.add(make_shared<Quad>(Point3f(0,0,555), Vec3f(0,0,-555), Vec3f(0,555,0), red));
+    world.add(make_shared<Quad>(Point3f(0,555,0), Vec3f(555,0,0), Vec3f(0,0,555), white));
+    world.add(make_shared<Quad>(Point3f(0,0,555), Vec3f(555,0,0), Vec3f(0,0,-555), white));
+    world.add(make_shared<Quad>(Point3f(555,0,555), Vec3f(-555,0,0), Vec3f(0,555,0), white));
+    // Light
+    world.add(make_shared<Quad>(Point3f(213,554,227), Vec3f(130,0,0), Vec3f(0,0,105), light));
 
     shared_ptr<Hittable> box1 = make_shared<Box>(Point3f(0, 0, 0), Point3f(165, 330, 165), white);
     box1->rotate_y(15);
@@ -216,8 +217,8 @@ void cornell_box() {
     world.add(box2);
 
     RayTracer raytracer(image);
-    raytracer.samples_per_pixel = 64;
-    raytracer.max_depth = 10;
+    raytracer.samples_per_pixel = 100;
+    raytracer.max_depth = 50;
     raytracer.background = Color3f(0.0f, 0.0f, 0.0f);
 
     raytracer.fovY = 40.f;

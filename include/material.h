@@ -18,6 +18,10 @@ public:
         attenuation = Color3f(0.f, 0.f, 0.f);
         return false;
     }
+
+    virtual float scattering_pdf(const Ray& r_in, const HitRecord& rec, const Ray& scattered) const {
+        return 0.f;
+    }
 };
 
 class Lambertian : public Material {
@@ -31,6 +35,32 @@ public:
     bool scatter(const Ray &r_in, const HitRecord &rec, Color3f &attenuation, Ray &scattered) 
     const override {
         auto scatter_direction = random_unit_vector() + rec.normal;
+        
+        if (scatter_direction.near_zero())
+            scatter_direction = rec.normal;
+
+        scattered = Ray(rec.p, scatter_direction, r_in.time());
+        attenuation = tex->value(rec.u, rec.v, rec.p);
+        return true;
+    }
+
+    float scattering_pdf(const Ray& r_in, const HitRecord& rec, const Ray& scattered) const override {
+        auto cos_theta = dot(rec.normal, scattered.direction());
+        return cos_theta < 0.f ? 0.f : cos_theta / pi;
+    }
+};
+
+class Lambertian1 : public Material {
+private:
+    shared_ptr<Texture> tex;
+public:
+    Lambertian1(const Color3f &albedo) : tex(make_shared<SolidColor>(albedo)) {}
+    Lambertian1(const Color &albedo) : Lambertian1(color2Vec(albedo).cutVec3()) {}
+    Lambertian1(shared_ptr<Texture> tex) : tex(tex) {}
+
+    bool scatter(const Ray &r_in, const HitRecord &rec, Color3f &attenuation, Ray &scattered) 
+    const override {
+        auto scatter_direction = rec.normal;
         
         if (scatter_direction.near_zero())
             scatter_direction = rec.normal;
