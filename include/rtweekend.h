@@ -55,22 +55,41 @@ inline Vec3f random_in_unit_disk() {
     return Vec3f(cosf(theta), sinf(theta), 0.f);
 }
 
+// rejection method
+// inline Vec3f random_unit_vector() {
+//     // uniform sample in unit sphere
+//     Vec3f sample_vec;
+//     float vec_lensq;
+//     do {
+//         sample_vec = random_vector(-1.f, 1.f);
+//         vec_lensq = sample_vec.norm_squared();
+//     } while (vec_lensq < 1e-16 && vec_lensq > 1.f);
+
+//     return sample_vec.unit();
+// }
+
+// inversion method
 inline Vec3f random_unit_vector() {
-    // uniform sample in unit sphere
-    float theta = degrees_to_radians(random_float(0.f, 180.f));
-    float phi = degrees_to_radians(random_float(0.f, 360.f));
-    return Vec3f(sinf(theta)*cosf(phi), sinf(theta)*sinf(phi), cosf(theta));
+    auto r1 = random_float();
+    auto r2 = random_float();
+
+    auto phi = 2*pi*r1;
+    auto x = std::cos(phi)*2*std::sqrt(r2*(1-r2));
+    auto y = std::sin(phi)*2*std::sqrt(r2*(1-r2));
+    auto z = 1 - 2*r2;
+    return Vec3f(x, y, z);
 }
 
-inline Vec3f random_on_hemisphere(const Vec3f &normal) {
-    // sample in sphere coords(normal coords) and transform it into world coords
-    float theta = degrees_to_radians(random_float(0.f, 90.f));
-    float phi = degrees_to_radians(random_float(0.f, 360.f));
-    Vec3f v(sinf(theta)*cosf(phi), sinf(theta)*sinf(phi), cosf(theta));
-    Vec3f up = abs(normal.y) <= 0.999f ? Vec3f(0.f, 1.f, 0.f) : Vec3f(0.f, 0.f, -1.f);
-    auto x_axis = cross(up, normal);
-    auto y_axis = cross(normal, x_axis);
-    return v.x*x_axis + v.y*y_axis + v.z*normal;
+inline Vec3f random_cosine_direction() {
+    auto r1 = random_float();
+    auto r2 = random_float();
+
+    auto phi = 2*pi*r1;
+    auto x = std::cos(phi)*std::sqrt(r2);
+    auto y = std::sin(phi)*std::sqrt(r2);
+    auto z = std::sqrt(1-r2);
+
+    return Vec3f(x, y, z);
 }
 
 // ensure pars are unit vectors
