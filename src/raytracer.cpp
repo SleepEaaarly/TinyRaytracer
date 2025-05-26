@@ -16,7 +16,7 @@ void RayTracer::init() {
     float viewport_width = viewport_height * (float(image_width)/image_height);
     center = eye;
     z_cam = (center - lookat).unit();
-    Vec3f up = fabsf(z_cam.y) <= 0.999f ? Vec3f(0.f, 1.f, 0.f) : Vec3f(0.f, 0.f, -1.f);
+    Vec3f up = fabsf(z_cam.y) <= 0.99f ? Vec3f(0.f, 1.f, 0.f) : Vec3f(0.f, 0.f, -1.f);
     x_cam = cross(up, z_cam);
     y_cam = cross(z_cam, x_cam);
 
@@ -117,8 +117,8 @@ Color3f RayTracer::ray_color(const Ray &r, int depth, const Hittable &world) {
     if (!rec.mat->scatter(r, rec, attenuation, scattered))
         return emit_color;
     
-    auto scatter_pdf = rec.mat->scattering_pdf(r, rec, scattered);
-    auto pdf_value = scatter_pdf;
+    auto scatter_pdf = rec.mat->scattering_pdf(r, rec, scattered);  // 散射光线概率分布
+    auto pdf_value = scatter_pdf;   // 采样概率分布
 
     Color3f scatter_color;
     if (pdf_value < 1e-6)   scatter_color = Color3f(0.f, 0.f, 0.f);  

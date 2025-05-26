@@ -123,4 +123,12 @@ inline Vec3f linear_to_gamma(const Vec3f &linear_component) {
     return Vec3f(gamma_r, gamma_g, gamma_b);
 }
 
+inline Vec3f normal_to_world_dir(const Vec3f& v, const Vec3f& n) {
+    Vec3f a = std::fabs(n.x) <= 0.9f ? Vec3f(1.f, 0.f, 0.f) : Vec3f(0.f, 1.f, 0.f);
+    auto axis_y = cross(n, a).unit();
+    auto axis_x = cross(axis_y, n);
+
+    return v.x * axis_x + v.y * axis_y + v.z * n;
+}
+
 #endif
