@@ -122,7 +122,8 @@ Color3f RayTracer::ray_color(const Ray &r, int depth, const Hittable &world) {
 
     Color3f scatter_color;
     if (pdf_value < 1e-6)   scatter_color = Color3f(0.f, 0.f, 0.f);  
-    else scatter_color = attenuation * ray_color(scattered, depth-1, world) / pdf_value;
+    else scatter_color =
+        (attenuation * scatter_pdf * ray_color(scattered, depth-1, world)) / pdf_value;
 
     return scatter_color + emit_color;      // in fact, no material designed emit and scatter light at the same time.
 }

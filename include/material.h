@@ -50,27 +50,6 @@ public:
     }
 };
 
-class Lambertian1 : public Material {
-private:
-    shared_ptr<Texture> tex;
-public:
-    Lambertian1(const Color3f &albedo) : tex(make_shared<SolidColor>(albedo)) {}
-    Lambertian1(const Color &albedo) : Lambertian1(color2Vec(albedo).cutVec3()) {}
-    Lambertian1(shared_ptr<Texture> tex) : tex(tex) {}
-
-    bool scatter(const Ray &r_in, const HitRecord &rec, Color3f &attenuation, Ray &scattered) 
-    const override {
-        auto scatter_direction = rec.normal;
-        
-        if (scatter_direction.near_zero())
-            scatter_direction = rec.normal;
-
-        scattered = Ray(rec.p, scatter_direction, r_in.time());
-        attenuation = tex->value(rec.u, rec.v, rec.p);
-        return true;
-    }
-};
-
 class Metal : public Material {
 private:
     Color3f albedo;
