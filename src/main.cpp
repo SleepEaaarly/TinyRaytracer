@@ -11,7 +11,7 @@
 #include <chrono>
 
 void bouncing_spheres() {
-    Image image(1200, 675, Image::RGB);
+    auto image = make_shared<Image>(1200, 675, Image::RGB);
     HittableList world;
 
     auto checker = make_shared<CheckerTexture>(0.32f, Color3f(.2f, .3f, .1f), Color3f(.9f, .9f, .9f));
@@ -49,6 +49,9 @@ void bouncing_spheres() {
     world.add(make_shared<Sphere>(Point3f(-4.f, 1.f, 0.f), 1.0f, material2));
     auto material3 = make_shared<Metal>(Color3f(0.7f, 0.6f, 0.5f), 0.0f);
     world.add(make_shared<Sphere>(Point3f(4.f, 1.f, 0.f), 1.0f, material3));
+    
+    auto empty_material = make_shared<Material>();
+    HittableList highlight;
 
     RayTracer raytracer(image);
     raytracer.samples_per_pixel = 30;
@@ -61,16 +64,16 @@ void bouncing_spheres() {
     raytracer.defocus_angle = 0.f;
 
     auto start = std::chrono::steady_clock::now();
-    raytracer.render(BVHNode(world));
+    raytracer.render(BVHNode(world), highlight);
     auto end = std::chrono::steady_clock::now();
     auto duration = std::chrono::duration<double>(end - start).count();
     std::cout << "Raytracing time consumption: " << duration << " secs" << std::endl;
 
-    image.write_png_file("rst.png");
+    image->write_png_file("rst.png");
 }
 
 void checkered_spheres() {
-    Image image(400, 225, Image::RGB);
+    auto image = make_shared<Image>(400, 225, Image::RGB);
     HittableList world;   
     
     auto checker = make_shared<CheckerTexture>(0.32f, Color3f(.2f, .3f, .1f), Color3f(.9f, .9f, .9f));
@@ -78,6 +81,8 @@ void checkered_spheres() {
     // world.add(make_shared<Sphere>(Point3f(0.f, -10.f, 0.f), 10.f, make_shared<Lambertian>(checker)));
     // world.add(make_shared<Sphere>(Point3f(0.f, 10.f, 0.f), 10.f, make_shared<Lambertian>(checker)));
     world.add(make_shared<Sphere>(Point3f(0.f, 0.f, 0.f), 5.f, make_shared<Lambertian>(checker)));
+    auto empty_material = make_shared<Material>();
+    HittableList highlight;
 
     RayTracer raytracer(image);
     raytracer.samples_per_pixel = 30;
@@ -90,22 +95,24 @@ void checkered_spheres() {
     raytracer.defocus_angle = 0.f;
 
     auto start = std::chrono::steady_clock::now();
-    raytracer.render(BVHNode(world));
+    raytracer.render(BVHNode(world), highlight);
     auto end = std::chrono::steady_clock::now();
     auto duration = std::chrono::duration<double>(end - start).count();
     std::cout << "Raytracing time consumption: " << duration << " secs" << std::endl;
 
-    image.write_png_file("rst.png");
+    image->write_png_file("rst.png");
 }
 
 void earth() {
-    Image image(400, 225, Image::RGB);
+    auto image = make_shared<Image>(400, 225, Image::RGB);
     HittableList world;  
 
     auto earth_texture = make_shared<ImageTexture>("../images/earthmap.jpg");
     auto earth_surface = make_shared<Lambertian>(earth_texture);
     auto globe = make_shared<Sphere>(Point3f(0.f,0.f,0.f), 2.f, earth_surface);
     world.add(globe);
+    auto empty_material = make_shared<Material>();
+    HittableList highlight;
 
     RayTracer raytracer(image);
     raytracer.samples_per_pixel = 30;
@@ -118,22 +125,24 @@ void earth() {
     raytracer.defocus_angle = 0.f;
 
     auto start = std::chrono::steady_clock::now();
-    raytracer.render(BVHNode(world));
+    raytracer.render(BVHNode(world), highlight);
     auto end = std::chrono::steady_clock::now();
     auto duration = std::chrono::duration<double>(end - start).count();
     std::cout << "Raytracing time consumption: " << duration << " secs" << std::endl;
 
-    image.write_png_file("rst.png");
+    image->write_png_file("rst.png");
 }
 
 void perlin_spheres() {
-    Image image(400, 225, Image::RGB);
+    auto image = make_shared<Image>(400, 225, Image::RGB);
     HittableList world;
     
     auto pertext = make_shared<NoiseTexture>(4.f);
     world.add(make_shared<Sphere>(Point3f(0.f, -1000.f, 0.f), 1000.f, make_shared<Lambertian>(pertext)));
     world.add(make_shared<Sphere>(Point3f(0.f, 2.f, 0.f), 2.f, make_shared<Lambertian>(pertext)));
 
+    auto empty_material = make_shared<Material>();
+    HittableList highlight;
     RayTracer raytracer(image);
     raytracer.samples_per_pixel = 30;
     raytracer.max_depth = 10;
@@ -145,17 +154,17 @@ void perlin_spheres() {
     raytracer.defocus_angle = 0.f;
 
     auto start = std::chrono::steady_clock::now();
-    raytracer.render(BVHNode(world));
+    raytracer.render(BVHNode(world), highlight);
     auto end = std::chrono::steady_clock::now();
     auto duration = std::chrono::duration<double>(end - start).count();
     std::cout << "Raytracing time consumption: " << duration << " secs" << std::endl;
 
-    image.write_png_file("rst.png");
+    image->write_png_file("rst.png");
 }
 
 
 void quad_mesh() {
-    Image image(400, 400, Image::RGB);
+    auto image = make_shared<Image>(400, 400, Image::RGB);
     HittableList world;
 
     auto left_red = make_shared<Lambertian>(Color3f(1.0, 0.2, 0.2));
@@ -170,6 +179,9 @@ void quad_mesh() {
     world.add(make_shared<Quad>(Point3f(-2, 3, 1), Vec3f(4, 0, 0), Vec3f(0, 0, 4), upper_orange));
     world.add(make_shared<Mesh>(Point3f(-2,-3, 5), Vec3f(4, 0, 0), Vec3f(0, 0,-4), lower_teal));
 
+    auto empty_material = make_shared<Material>();
+    HittableList highlight;
+
     RayTracer raytracer(image);
     raytracer.samples_per_pixel = 30;
     raytracer.max_depth = 10;
@@ -181,16 +193,16 @@ void quad_mesh() {
     raytracer.defocus_angle = 0.f;
 
     auto start = std::chrono::steady_clock::now();
-    raytracer.render(BVHNode(world));
+    raytracer.render(BVHNode(world), highlight);
     auto end = std::chrono::steady_clock::now();
     auto duration = std::chrono::duration<double>(end - start).count();
     std::cout << "Raytracing time consumption: " << duration << " secs" << std::endl;
 
-    image.write_png_file("rst.png");
+    image->write_png_file("rst.png");
 }
 
 void cornell_box() {
-    Image image(600, 600, Image::RGB);
+    auto image = make_shared<Image>(600, 600, Image::RGB);
 
     HittableList world;
     auto red = make_shared<Lambertian>(Color3f(.65f, .05f, .05f));
@@ -206,18 +218,30 @@ void cornell_box() {
     // Light
     world.add(make_shared<Quad>(Point3f(213,554,227), Vec3f(130,0,0), Vec3f(0,0,105), light));
 
+    // shared_ptr<Material> aluminum = make_shared<Metal>(Color3f(0.8f, 0.85f, 0.88f), 0.0f);
     shared_ptr<Hittable> box1 = make_shared<Box>(Point3f(0, 0, 0), Point3f(165, 330, 165), white);
     box1->rotate_y(15);
     box1->translate(Vec3f(265, 0, 295));
     world.add(box1);
     
-    shared_ptr<Hittable> box2 = make_shared<Box>(Point3f(0, 0, 0), Point3f(165, 165, 165), white);
-    box2->rotate_y(-18);
-    box2->translate(Vec3f(130, 0, 65));
-    world.add(box2);
+    auto glass = make_shared<Dielectric>(1.5);
+    shared_ptr<Hittable> sphere1 = make_shared<Sphere>(Point3f(190, 90, 190), 90, glass);
+    world.add(sphere1);
+    // shared_ptr<Hittable> box2 = make_shared<Box>(Point3f(0, 0, 0), Point3f(165, 165, 165), white);
+    // box2->rotate_y(-18);
+    // box2->translate(Vec3f(130, 0, 65));
+    // world.add(box2);
 
+    // Lights sources
+    auto empty_material = shared_ptr<Material>();
+    HittableList highlights;
+    highlights.add(
+        make_shared<Quad>(Point3f(343, 554, 332), Vec3f(-130, 0, 0), Vec3f(0, 0, -105), empty_material)
+    );
+    highlights.add(sphere1);
+   
     RayTracer raytracer(image);
-    raytracer.samples_per_pixel = 100;
+    raytracer.samples_per_pixel = 1000;
     raytracer.max_depth = 50;
     raytracer.background = Color3f(0.0f, 0.0f, 0.0f);
 
@@ -228,55 +252,16 @@ void cornell_box() {
     raytracer.defocus_angle = 0.f;
 
     auto start = std::chrono::steady_clock::now();
-    raytracer.render(BVHNode(world));
+    raytracer.render(BVHNode(world), highlights);
     auto end = std::chrono::steady_clock::now();
     auto duration = std::chrono::duration<double>(end - start).count();
     std::cout << "Raytracing time consumption: " << duration << " secs" << std::endl;
 
-    image.write_png_file("rst.png");
-}
-
-void box() {
-    Image image(600, 600, Image::RGB);
-
-    HittableList world;
-    auto red = make_shared<Lambertian>(Color3f(.65, .05, .05));
-    auto white = make_shared<Lambertian>(Color3f(.73, .73, .73));
-    auto green = make_shared<Lambertian>(Color3f(.12, .45, .15));
-    auto light = make_shared<DiffuseLight>(Color3f(15, 15, 15));
-
-    shared_ptr<Hittable> box1 = make_shared<Box>(Point3f(0, 0, 0), Point3f(165, 330, 165), white);
-    box1->translate(Vec3f(265, 0, 295));
-    box1->rotate_y(15);
-    world.add(box1);
-    
-    shared_ptr<Hittable> box2 = make_shared<Box>(Point3f(0, 0, 0), Point3f(165, 165, 165), white);
-    box2->translate(Vec3f(130, 0, 65));
-    box2->rotate_y(-18);
-    world.add(box2);
-
-    RayTracer raytracer(image);
-    raytracer.samples_per_pixel = 30;
-    raytracer.max_depth = 10;
-    raytracer.background = Color3f(0.7f, 0.8f, 1.f);
-
-    raytracer.fovY = 40.f;
-    raytracer.eye = Point3f(278.f, 278.f, -800.f);
-    raytracer.lookat = Point3f(278.f, 278.f, 0.f);
-    
-    raytracer.defocus_angle = 0.f;
-
-    auto start = std::chrono::steady_clock::now();
-    raytracer.render(BVHNode(world));
-    auto end = std::chrono::steady_clock::now();
-    auto duration = std::chrono::duration<double>(end - start).count();
-    std::cout << "Raytracing time consumption: " << duration << " secs" << std::endl;
-
-    image.write_png_file("rst.png");
+    image->write_png_file("rst.png");
 }
 
 void final_scene() {
-    Image image(800, 800, Image::RGB);
+    auto image = make_shared<Image>(800, 800, Image::RGB);
 
     HittableList boxes1;
     auto ground = make_shared<Lambertian>(Color3f(0.48, 0.83, 0.53));
@@ -327,6 +312,9 @@ void final_scene() {
     boxes2.translate(Vec3f(-100, 270, 395));
     world.add(make_shared<BVHNode>(boxes2));
 
+    auto empty_material = make_shared<Material>();
+    HittableList highlights;
+
     RayTracer raytracer(image);
     raytracer.samples_per_pixel = 500;
     raytracer.max_depth = 40;
@@ -339,12 +327,12 @@ void final_scene() {
     raytracer.defocus_angle = 0.f;
 
     auto start = std::chrono::steady_clock::now();
-    raytracer.render(BVHNode(world));
+    raytracer.render(BVHNode(world), highlights);
     auto end = std::chrono::steady_clock::now();
     auto duration = std::chrono::duration<double>(end - start).count();
     std::cout << "Raytracing time consumption: " << duration << " secs" << std::endl;
 
-    image.write_png_file("rst.png");
+    image->write_png_file("rst.png");
 
 }
 
@@ -355,7 +343,6 @@ int main() {
         case 3: earth(); break;
         case 4: perlin_spheres(); break;
         case 5: quad_mesh(); break;
-        case 6: box(); break;
         case 7: cornell_box(); break;
         case 9: final_scene(); break;
     }

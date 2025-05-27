@@ -36,6 +36,14 @@ public:
     virtual void translate(const Vec3f& offset) = 0;
 
     virtual void rotate_y(float theta) = 0;
+
+    virtual float pdf_value(const Point3f& origin, const Vec3f& direction) const {
+        return 0.f;
+    }
+
+    virtual Vec3f random(const Point3f& origin) const {
+        return Vec3f(1.f, 0.f, 0.f);
+    }
 };
 
 

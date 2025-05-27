@@ -23,6 +23,10 @@ public:
         bbox = aabb(bbox, object->bounding_box());
     }
 
+    bool isEmpty() const {
+        return objects.size() == 0;
+    }
+
     bool hit(const Ray &r, Interval ray_t, HitRecord &rec) const override {
         HitRecord temp_rec;
         bool hit_anything = false;
@@ -54,6 +58,27 @@ public:
             object->rotate_y(theta);
             bbox = aabb(bbox, object->bounding_box());
         }
+    }
+
+    virtual float pdf_value(const Point3f& origin, const Vec3f& direction) const {
+        if (objects.size() == 0) {
+            std::cout << "No objects in lights!" << std::endl;
+            return 0.f;
+        }
+        auto weight = 1.f / objects.size();
+        auto sum = 0.f;
+        for (const auto& object : objects) {
+            sum += weight * object->pdf_value(origin, direction);
+        }
+        return sum;
+    }
+
+    virtual Vec3f random(const Point3f& origin) const {
+        auto obj_size = objects.size();
+        if (obj_size == 0)
+            return Vec3f(1.f, 0.f, 0.f);
+
+        return objects[random_int(0, obj_size - 1)]->random(origin);
     }
 };
 

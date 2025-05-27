@@ -131,4 +131,8 @@ inline Vec3f normal_to_world_dir(const Vec3f& v, const Vec3f& n) {
     return v.x * axis_x + v.y * axis_y + v.z * n;
 }
 
+inline Vec3f normal_to_world_dir(const Vec3f& v, const Vec3f& axis_x, const Vec3f& axis_y, const Vec3f& n) {
+    return v.x * axis_x + v.y * axis_y + v.z * n;
+}
+
 #endif

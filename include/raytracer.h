@@ -4,8 +4,10 @@
 #include "geometry.h"
 #include "image.h"
 #include "hittable.h"
+#include "hittable_list.h"
 #include "ray.h"
 #include "material.h"
+#include "pdf.h"
 
 class RayTracer {
 public:
@@ -22,11 +24,11 @@ public:
     float focus_dist = 10.f;
     Color3f background = Color3f(0.7f, 0.8f, 1.0f);
 
-    RayTracer(Image &img);
-    void render(const Hittable &world);
+    RayTracer(shared_ptr<Image> image);
+    void render(const Hittable &world, const HittableList& highlights);
 
 private:
-    Image *image;
+    shared_ptr<Image> image;
     int image_width;
     int image_height;
 
@@ -38,7 +40,7 @@ private:
     Vec3f defocus_disk_u;
     Vec3f defocus_disk_v;
 
-    Color3f ray_color(const Ray &r, int depth, const Hittable &world);   
+    Color3f ray_color(const Ray &r, int depth, const Hittable& world, const HittableList& highlights);   
     Ray get_sample_ray(int i, int j) const;
     Ray get_sample_ray(int i, int j, int s_i, int s_j) const;
     Vec3f sample_square_stratified(int s_i, int s_j) const;

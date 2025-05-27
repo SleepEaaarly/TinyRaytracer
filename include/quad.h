@@ -10,12 +10,16 @@ private:
     Vec3f normal;
     shared_ptr<Material> mat;
     aabb bbox;
+    float area;
+
 public:
     Quad(const Point3f& Q, const Vec3f& u, const Vec3f& v, shared_ptr<Material> mat)
         : Q(Q), u(u), v(v), mat(mat) {
         auto n = cross(u, v);
         w = n / dot(n, n);
         normal = n.unit();
+
+        area = n.norm();
 
         auto bbox1 = aabb(Q, Q + u + v);
         auto bbox2 = aabb(Q + u, Q + v);
@@ -84,6 +88,22 @@ public:
     void rotate_y(float theta) override {   // rotate around mass_point y_axis
         Point3f mass_point = Q + u / 2.f + v / 2.f;
         rotate_y(theta, mass_point);
+    }
+
+    float pdf_value(const Point3f& origin, const Vec3f& direction) const override {
+        HitRecord rec;
+        if (!this->hit(Ray(origin, direction), Interval(0.001f, INFINITY), rec)) 
+            return 0.f;     // 除了那块立体角外其他地方pdf为0
+        
+        auto distance_squared = rec.t * rec.t * direction.norm_squared();
+        auto cosine = std::fabs(dot(direction, rec.normal));
+        
+        return distance_squared / (cosine * area);
+    }
+
+    Vec3f random(const Point3f& origin) const override {
+        auto p = Q + (random_float() * u) + (random_float() * v);
+        return p - origin;
     }
 };
 

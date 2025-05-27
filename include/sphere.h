@@ -61,6 +61,37 @@ public:
 
     void rotate_y(float theta) override {}
 
+    float pdf_value(const Point3f& origin, const Vec3f& direction) const {
+        HitRecord rec;
+        if (!this->hit(Ray(origin, direction), Interval(0.001f, INFINITY), rec))
+            return 0.f;
+
+        auto dist_squared = (center.at(0) - origin).norm_squared();
+        auto cos_theta_max = std::sqrt(1 - radius*radius/dist_squared);
+        auto solid_angle = 2*pi*(1-cos_theta_max);
+        if (solid_angle < 1e-6f) 
+            return 0.f;
+
+        return 1 / solid_angle;
+    }
+
+    Vec3f random(const Point3f& origin) const {
+        Vec3f direction = center.at(0) - origin;
+        auto distance_squared = direction.norm_squared();
+        auto normal = direction.unit();
+
+        // generate uniform random rays within solid angle
+        auto r1 = random_float();
+        auto r2 = random_float();
+        auto z = 1 + r2*(std::sqrt(1-radius*radius/distance_squared) - 1);
+
+        auto phi = 2*pi*r1;
+        auto x = std::cos(phi) * std::sqrt(1-z*z);
+        auto y = std::sin(phi) * std::sqrt(1-z*z);
+
+        return normal_to_world_dir(Vec3f(x, y, z), normal);
+    }
+
 private:
     Path center;
     float radius;

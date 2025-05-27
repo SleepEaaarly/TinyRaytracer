@@ -44,17 +44,18 @@ using Color3f = Vec3f;
 using Color4f = Vec4f;
 
 inline Color vec2Color(const Vec4f &vec) {
-    return Color((unsigned char)(std::max(0.f, std::min(1.f, vec.r))*255+.5f),
-    (unsigned char)(std::max(0.f, std::min(1.f, vec.g))*255+.5f),
-    (unsigned char)(std::max(0.f, std::min(1.f, vec.b))*255+.5f),
-    (unsigned char)(std::max(0.f, std::min(1.f, vec.a))*255+.5f));
+	auto r = (vec.r != vec.r) ? 0.f : vec.r;
+	auto g = (vec.g != vec.g) ? 0.f : vec.g;
+	auto b = (vec.b != vec.b) ? 0.f : vec.b;
+	auto a = (vec.a != vec.a) ? 0.f : vec.a;
+    return Color((unsigned char)(std::max(0.f, std::min(1.f, r))*255+.5f),
+    (unsigned char)(std::max(0.f, std::min(1.f, g))*255+.5f),
+    (unsigned char)(std::max(0.f, std::min(1.f, b))*255+.5f),
+    (unsigned char)(std::max(0.f, std::min(1.f, a))*255+.5f));
 }
 
 inline Color vec2Color(const Vec3f &vec) {
-    return Color((unsigned char)(std::max(0.f, std::min(1.f, vec.x))*255+.5f),
-    (unsigned char)(std::max(0.f, std::min(1.f, vec.y))*255+.5f),
-    (unsigned char)(std::max(0.f, std::min(1.f, vec.z))*255+.5f),
-    255);
+    return vec2Color(Vec4f(vec.x, vec.y, vec.z, 1.f));
 }
 
 inline Vec4f color2Vec(const Color &c) {

@@ -1,7 +1,7 @@
 #include "raytracer.h"
 
-RayTracer::RayTracer(Image &img) {
-    image = &img;
+RayTracer::RayTracer(shared_ptr<Image> img) {
+    this->image = img;
 }
 
 void RayTracer::init() {
@@ -34,7 +34,7 @@ void RayTracer::init() {
     defocus_disk_v = y_cam * defocus_radius;
 }
 
-void RayTracer::render(const Hittable &world) {
+void RayTracer::render(const Hittable &world, const HittableList& highlights) {
     init();
     for (int i = 0; i < image_width; ++i) {
         for (int j = 0; j < image_height; ++j) {
@@ -47,7 +47,7 @@ void RayTracer::render(const Hittable &world) {
             for (int s_i = 0; s_i < sqrt_spp; ++s_i) {
                 for (int s_j = 0; s_j < sqrt_spp; ++s_j) {
                     Ray r = get_sample_ray(i, j, s_i, s_j);
-                    pixel_color += ray_color(r, max_depth, world);
+                    pixel_color += ray_color(r, max_depth, world, highlights);
                 }
             }
             pixel_color = pixel_color * pixel_samples_scale;
@@ -101,7 +101,9 @@ Vec3f RayTracer::sample_square_stratified(int s_i, int s_j) const {
     return Vec3f(px, py, 0.f);
 }
 
-Color3f RayTracer::ray_color(const Ray &r, int depth, const Hittable &world) {
+Color3f RayTracer::ray_color(const Ray &r, int depth, const Hittable& world, const HittableList& highlights) {  
+    // params lights only tells us position without material and intensity.
+
     // it means ray bounces between objects all the time and no light(emit or background) is touched.
     if (depth <= 0) 
         return Color3f(0.f, 0.f, 0.f);
@@ -111,19 +113,30 @@ Color3f RayTracer::ray_color(const Ray &r, int depth, const Hittable &world) {
     if (!world.hit(r, Interval(0.001f, INFINITY), rec))
         return background;
 
-    Vec3f attenuation;
-    Ray scattered;
-    auto emit_color = rec.mat->emit(rec.u, rec.v, rec.p);
-    if (!rec.mat->scatter(r, rec, attenuation, scattered))
+    ScatterRecord srec;
+    auto emit_color = rec.mat->emit(r, rec, rec.u, rec.v, rec.p);
+    if (!rec.mat->scatter(r, rec, srec))    // scatter方法采样的scattered(ray)是按照scatter_pdf概率密度的, 因此sample_pdf也就等于scatter_pdf
         return emit_color;
     
-    auto scatter_pdf = rec.mat->scattering_pdf(r, rec, scattered);  // 散射光线概率分布
-    auto pdf_value = scatter_pdf;   // 采样概率分布
+    if (srec.skip_pdf) {
+        return srec.attenuation * ray_color(srec.skip_pdf_ray, depth-1, world, highlights);
+    }
 
-    Color3f scatter_color;
-    if (pdf_value < 1e-6)   scatter_color = Color3f(0.f, 0.f, 0.f);  
-    else scatter_color =
-        (attenuation * scatter_pdf * ray_color(scattered, depth-1, world)) / pdf_value;
+    shared_ptr<PDF> sample_pdf_ptr;
+    if (highlights.isEmpty())
+        sample_pdf_ptr = srec.pdf_ptr;
+    else 
+        sample_pdf_ptr = make_shared<MixturePDF>(make_shared<HittablePDF>(highlights, rec.p), srec.pdf_ptr);
+
+    auto scattered = Ray(rec.p, sample_pdf_ptr->generate(), r.time());                         // 采样的散射光线 
+    auto sample_pdf_value = sample_pdf_ptr->value(scattered.direction());
+    if (sample_pdf_value < 1e-4f) 
+        return emit_color;
+
+    auto scatter_pdf_value = rec.mat->scattering_pdf(r, rec, scattered);     // 散射光线概率分布
+
+    auto sample_color = ray_color(scattered, depth-1, world, highlights);
+    auto scatter_color = (srec.attenuation * scatter_pdf_value * sample_color) / sample_pdf_value;
 
     return scatter_color + emit_color;      // in fact, no material designed emit and scatter light at the same time.
 }
