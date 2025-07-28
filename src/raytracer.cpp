@@ -133,7 +133,7 @@ Color3f RayTracer::ray_color(const Ray &r, int depth, const Hittable& world, con
     if (sample_pdf_value < 1e-4f) 
         return emit_color;
 
-    auto scatter_pdf_value = rec.mat->scattering_pdf(r, rec, scattered);     // 散射光线概率分布
+    auto scatter_pdf_value = rec.mat->scattering_pdf(r, rec, scattered);     // 相函数
 
     auto sample_color = ray_color(scattered, depth-1, world, highlights);
     auto scatter_color = (srec.attenuation * scatter_pdf_value * sample_color) / sample_pdf_value;
